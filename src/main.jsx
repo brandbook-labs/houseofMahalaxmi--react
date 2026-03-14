@@ -15,7 +15,6 @@ import Home from "./pages/Home";
 import ContactPage from "./components/Contact/Contact";
 import ProductDetails from "./components/Products/ProductDetails";
 import CartPage from "./components/Products/Cart";
-import CheckoutPage from "./components/Products/Checkout";
 import SuccessPage from "./components/Products/PurchaseSuccess";
 import WomensCollection from "./pages/Women/WomensCollection";
 import MensCollection from "./pages/Men/MensCollection";
@@ -24,6 +23,7 @@ import FestiveCollection from "./pages/collections/FestiveCollection";
 import WeddingCollection from "./pages/collections/WeddingCollection";
 import CasualCollection from "./pages/collections/CasualCollection";
 import AccessoriesCollection from "./pages/collections/Accessories";
+import CheckoutPage from "./components/Products/checkout";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
