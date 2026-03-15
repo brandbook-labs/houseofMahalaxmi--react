@@ -37,14 +37,14 @@ const MahalaxmiHero = () => {
         {/* Call to Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           <Link 
-            to="/shop" 
+            to="/#shop-department" 
             className="flex items-center justify-center gap-2 bg-[#D4AF37] text-gray-900 px-8 py-4 rounded-md font-bold uppercase tracking-wider hover:bg-white transition-colors w-full sm:w-auto shadow-xl"
           >
             <ShoppingBag size={20} />
             Shop Now
           </Link>
           <Link 
-            to="/collections" 
+            to="/#shop-collection"
             className="flex items-center justify-center gap-2 bg-transparent text-white border-2 border-white/70 px-8 py-4 rounded-md font-bold uppercase tracking-wider hover:border-white hover:bg-white/10 transition-colors w-full sm:w-auto backdrop-blur-sm"
           >
             View Collections

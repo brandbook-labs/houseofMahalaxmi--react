@@ -1,5 +1,4 @@
-import React from 'react'
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import MahalaxmiHero from '../components/Hero/Hero';
 import ProductShowcase from '../components/Products/PopularItems';
@@ -16,18 +15,26 @@ function Home() {
       if (element) {
         setTimeout(() => {
           element.scrollIntoView({ behavior: 'smooth' });
-        }, 100); // wait for the DOM to load
+        }, 100); 
       }
     }
   }, [hash]);
+
   return (
     <>
       <MahalaxmiHero />
-      <ShopByDepartment />
-      <MahalaxmiCategories />
+      
+      {/* [NEW] ଏଠାରେ ଗୋଟିଏ ID ଦିଆଗଲା */}
+      <div id="shop-department">
+          <ShopByDepartment />
+      </div>
+
+      <div id="shop-collection">
+        <MahalaxmiCategories />
+      </div>
       <ProductShowcase />   
     </>
   )
 }
 
-export default Home
+export default Home;

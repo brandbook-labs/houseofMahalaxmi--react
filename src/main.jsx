@@ -19,6 +19,7 @@ import SuccessPage from "./components/Products/PurchaseSuccess";
 import CheckoutPage from "./components/Products/checkout";
 import DepartmentPage from "./pages/DepartmentPage";
 import SearchPage from "./pages/SearchPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 // import WomensCollection from "./pages/Women/WomensCollection";
 // import MensCollection from "./pages/Men/MensCollection";
@@ -33,7 +34,7 @@ const router = createBrowserRouter(
     <Route path="/" element={<Layout />}>
       {/* Main Pages */}
       <Route path="" element={<Home />} />
-      <Route path="/contact-us" element={<ContactPage />} />
+      {/* <Route path="/contact-us" element={<ContactPage />} /> */}
       
       {/* E-Commerce Core */}
       {/* Notice the ":id" here. This makes it a dynamic route. */}
@@ -47,7 +48,7 @@ const router = createBrowserRouter(
       <Route path="/collections/:collectionId" element={<DepartmentPage />} />
 
       <Route path="/search" element={<SearchPage />} />
-      
+      <Route path="*" element={<NotFoundPage />} />
     </Route>
   )
 );
