@@ -2,8 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ShoppingBag, Search, Menu, X, ChevronDown, ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { Link } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 
 const Navbar = () => {
+  const { cartCount } = useCart();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -87,10 +90,11 @@ const Navbar = () => {
 
           {/* --- DESKTOP NAVIGATION --- */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="/" className="hover:text-[#800020] transition-colors font-medium">Home</a>
-            <a href="/women" className="hover:text-[#800020] transition-colors font-medium">Women</a>
-            <a href="/men" className="hover:text-[#800020] transition-colors font-medium">Men</a>
-            <a href="/kids" className="hover:text-[#800020] transition-colors font-medium">Kids</a>
+            <Link to="/" className="hover:text-[#800020] transition-colors font-medium">Home</Link>
+            {/* ଏଠାରେ URL କୁ ଡାଇନାମିକ୍ କରାଗଲା */}
+            <Link to="/department/women" className="hover:text-[#800020] transition-colors font-medium">Women</Link>
+            <Link to="/department/men" className="hover:text-[#800020] transition-colors font-medium">Men</Link>
+            <Link to="/department/kids" className="hover:text-[#800020] transition-colors font-medium">Kids</Link>
         
             {/* Collections Dropdown */}
             <div 
@@ -129,12 +133,15 @@ const Navbar = () => {
               {isSearchOpen ? <X size={22} /> : <Search size={22} />}
             </button>
 
-            <a href="/cart" className="relative text-gray-700 hover:text-black transition-colors group">
+            {/* Cart Icon ପାଖରେ ଏହାକୁ ବଦଳାନ୍ତୁ */}
+            <Link to="/cart" className="relative text-gray-700 hover:text-black transition-colors group">
               <ShoppingBag size={22} />
-              <span className="absolute -top-2 -right-2 bg-[#800020] text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
-                3
-              </span>
-            </a>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#800020] text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
             
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center">

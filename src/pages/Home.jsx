@@ -25,10 +25,7 @@ function Home() {
       <MahalaxmiHero />
       <ShopByDepartment />
       <MahalaxmiCategories />
-      <ProductShowcase />
-      
-
-   
+      <ProductShowcase />   
     </>
   )
 }

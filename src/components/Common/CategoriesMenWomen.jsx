@@ -8,21 +8,21 @@ const departments = [
     title: "Women's Fashion",
     // Lady wearing traditional sari
     image: "https://img.freepik.com/free-photo/portrait-young-woman-wearing-tradition-sari-garment_52683-90226.jpg?uid=R169025813&ga=GA1.1.744688816.1759506239&semt=ais_hybrid&w=740&q=80",
-    link: "/women"
+    link: "/department/women"
   },
   {
     id: 'men',
     title: "Men's Ethnic",
     // Men's off-white embroidered kurta
     image: "https://img.freepik.com/premium-photo/two-indian-men-wears-ethnic-traditional-cloths-male-fashion-models-with-sherwani-kurta-pyjama-sitting-posing-wing-chair-sofa-against-brown-grunge-background-selective-focus_466689-45467.jpg?",
-    link: "/men"
+    link: "/department/men"
   },
   {
     id: 'kids',
     title: "Kids' Wear",
     // Cute baby girl in yellow clothes
     image: "https://img.freepik.com/free-photo/happy-cute-baby-girl-fashionable-yellow-baby-clothes-posing-studio-blue-background_114579-92593.jpg?uid=R169025813&ga=GA1.1.744688816.1759506239&semt=ais_hybrid&w=740&q=80",
-    link: "/kids"
+    link: "/department/kids"
   }
 ];
 

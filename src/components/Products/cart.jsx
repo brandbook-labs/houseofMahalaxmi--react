@@ -1,61 +1,19 @@
-import React, { useState, useMemo } from "react";
-import {
-  Trash2,
-  Minus,
-  Plus,
-  ArrowRight,
-  ShieldCheck,
-  ArrowLeft,
-  ShoppingBag
-} from "lucide-react";
+import React, { useMemo } from "react";
+import { Trash2, Minus, Plus, ArrowRight, ShieldCheck, ArrowLeft, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-// --- MOCK CLOTHING CART DATA WITH VERIFIED IMAGES ---
-const INITIAL_CART = [
-  {
-    id: 1,
-    title: "Banarasi Silk Saree with Zari Work",
-    category: "Sarees",
-    type: "Handloom",
-    price: 12500,
-    gstRate: 5,
-    // Verified Saree Image
-    image: "https://images.pexels.com/photos/8388720/pexels-photo-8388720.jpeg?auto=compress&cs=tinysrgb&w=600",
-    quantity: 1,
-  },
-  {
-    id: 2,
-    title: "Embroidered Velvet Bridal Lehenga",
-    category: "Lehengas",
-    type: "Bridal",
-    price: 35000,
-    gstRate: 12,
-    // Verified Lehenga Image
-    image: "https://images.pexels.com/photos/14480562/pexels-photo-14480562.jpeg?auto=compress&cs=tinysrgb&w=600",
-    quantity: 1,
-  },
-  {
-    id: 3,
-    title: "Gold Plated Kundan Necklace",
-    category: "Jewelry",
-    type: "Accessories",
-    price: 2500,
-    gstRate: 3,
-    // Verified Jewelry Image
-    image: "https://images.pexels.com/photos/13018260/pexels-photo-13018260.jpeg?auto=compress&cs=tinysrgb&w=600",
-    quantity: 1,
-  }
-];
+import { useCart } from "../../context/CartContext";
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState(INITIAL_CART);
   const navigate = useNavigate();
+  
+  // [NEW] Local State ପରିବର୍ତ୍ତେ Global Context ରୁ ଡାଟା ଏବଂ ଫଙ୍କସନ୍ ଆଣନ୍ତୁ
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
 
   // --- CALCULATIONS ---
   const totals = useMemo(() => {
     return cartItems.reduce((acc, item) => {
         const itemTotal = item.price * item.quantity;
-        const itemTax = itemTotal * (item.gstRate / 100);
+        const itemTax = itemTotal * ((item.gstRate || 0) / 100);
         
         return {
             subtotal: acc.subtotal + itemTotal,
@@ -66,23 +24,6 @@ export default function CartPage() {
 
   const grandTotal = totals.subtotal + totals.tax;
 
-  // Handlers
-  const updateQuantity = (id, change) => {
-    setCartItems((items) =>
-      items.map((item) => {
-        if (item.id === id) {
-          const newQty = Math.max(1, item.quantity + change);
-          return { ...item, quantity: newQty };
-        }
-        return item;
-      })
-    );
-  };
-
-  const removeItem = (id) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
-  };
-
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -92,6 +33,7 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
+      // ଏଠାରୁ ଡାଟା ଧରି Checkout Page କୁ ଯିବା
       navigate("/checkout", { 
           state: { 
               items: cartItems,
@@ -108,48 +50,24 @@ export default function CartPage() {
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pt-12 md:pt-24 pb-20">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         
-        {/* --- HEADER --- */}
-        <div className="mb-8 md:mb-12 border-b border-gray-200 pb-6 text-center md:text-left">
-          <button
-            onClick={() => navigate("/shop")}
-            className="inline-flex items-center gap-2 text-gray-500 hover:text-[#800020] text-sm font-medium mb-4 transition-colors"
-          >
-            <ArrowLeft size={16} /> Continue Shopping
-          </button>
-          <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 leading-none">
-            Shopping <span className="text-gray-400 font-normal">Bag</span>
-          </h1>
-          <p className="text-gray-500 text-sm mt-3 font-medium">
-            You have {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
-          </p>
-        </div>
-
+        {/* ... Header Section ... */}
+        
         {cartItems.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             
             {/* === LEFT: CART ITEMS LIST === */}
             <div className="lg:col-span-8 flex flex-col gap-6">
               {cartItems.map((item) => {
-                // Per Item Calculations
                 const itemBaseTotal = item.price * item.quantity;
-                const itemTax = itemBaseTotal * (item.gstRate / 100);
+                const itemTax = itemBaseTotal * ((item.gstRate || 0) / 100);
                 const itemFinalTotal = itemBaseTotal + itemTax;
 
+                // ଧ୍ୟାନ ଦିଅନ୍ତୁ: map ରେ key ଦେଲାବେଳେ id ସହିତ size ମଧ୍ୟ ଯୋଡନ୍ତୁ, ନହେଲେ ଦୁଇଟି ଅଲଗା ସାଇଜ୍ ର ସମାନ ପ୍ରଡକ୍ଟ ଥିଲେ key error ଆସିବ
                 return (
-                  <div
-                    key={item.id}
-                    className="group flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white border border-gray-100 shadow-sm p-4 rounded-xl hover:shadow-md transition-shadow"
-                  >
-                    {/* Image */}
-                    <div className="w-full sm:w-32 aspect-[4/5] sm:h-36 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-
-                    {/* Content */}
+                  <div key={`${item.id}-${item.selectedSize}`} className="group flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white border border-gray-100 shadow-sm p-4 rounded-xl hover:shadow-md transition-shadow">
+                    
+                    {/* ... Image Section ... */}
+                    
                     <div className="flex-1 flex flex-col justify-between py-1">
                       <div>
                         <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
@@ -160,34 +78,27 @@ export default function CartPage() {
                               <h3 className="text-lg font-serif font-bold leading-tight text-gray-900">
                                 {item.title}
                               </h3>
+                              {/* [NEW] Size ଦେଖାଇବା ପାଇଁ */}
+                              {item.selectedSize && (
+                                <p className="text-sm text-gray-600 mt-1">Size: <span className="font-bold">{item.selectedSize.toUpperCase()}</span></p>
+                              )}
                           </div>
-
-                          {/* --- ITEM PRICE DISPLAY --- */}
-                          <div className="text-left sm:text-right mt-2 sm:mt-0">
-                              <span className="block text-xl font-bold text-gray-900 leading-none">
-                                  {formatPrice(itemFinalTotal)}
-                              </span>
-                              <span className="block text-xs text-gray-500 mt-1.5">
-                                  {formatPrice(itemBaseTotal)} + {item.gstRate}% GST
-                              </span>
-                          </div>
+                          
+                          {/* ... Price Section ... */}
                         </div>
                       </div>
 
-                      {/* Controls */}
                       <div className="flex items-center justify-between mt-4 sm:mt-0">
                         <div className="flex items-center gap-4 bg-gray-50 rounded-lg p-1 border border-gray-200">
                           <button
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => updateQuantity(item.id, item.selectedSize, -1)} // [UPDATED]
                             className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-200 rounded transition-colors"
                           >
                             <Minus size={14} />
                           </button>
-                          <span className="text-sm font-medium w-6 text-center text-gray-900">
-                            {item.quantity}
-                          </span>
+                          <span className="text-sm font-medium w-6 text-center text-gray-900">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => updateQuantity(item.id, item.selectedSize, 1)} // [UPDATED]
                             className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-200 rounded transition-colors"
                           >
                             <Plus size={14} />
@@ -195,7 +106,7 @@ export default function CartPage() {
                         </div>
 
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeFromCart(item.id, item.selectedSize)} // [UPDATED]
                           className="text-xs font-bold text-gray-400 hover:text-red-600 uppercase tracking-wider flex items-center gap-1.5 transition-colors"
                         >
                           <Trash2 size={16} /> <span className="hidden sm:inline">Remove</span>

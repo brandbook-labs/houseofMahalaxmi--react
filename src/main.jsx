@@ -24,6 +24,7 @@ import WeddingCollection from "./pages/collections/WeddingCollection";
 import CasualCollection from "./pages/collections/CasualCollection";
 import AccessoriesCollection from "./pages/collections/Accessories";
 import CheckoutPage from "./components/Products/checkout";
+import DepartmentPage from "./pages/DepartmentPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -34,15 +35,13 @@ const router = createBrowserRouter(
       
       {/* E-Commerce Core */}
       {/* Notice the ":id" here. This makes it a dynamic route. */}
-      <Route path="/product/:id" element={<ProductDetails />} />
+      <Route path="/products/:slug" element={<ProductDetails />} />
       <Route path="/cart" element={<CartPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/success" element={<SuccessPage />} />
 
       {/* Main Categories */}
-      <Route path="/women" element={<WomensCollection />} />
-      <Route path="/men" element={<MensCollection />} />
-      <Route path="/kids" element={<KidsCollection />} />
+      <Route path="/department/:category" element={<DepartmentPage />} />
 
       {/* Sub-Collections */}
       <Route path="/collections/festive" element={<FestiveCollection />} />
