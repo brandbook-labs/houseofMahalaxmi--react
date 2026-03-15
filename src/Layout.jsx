@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Footer, Header } from "./components/index";
 import DynamicSEO from "./components/DynamicSEO";
 import { CartProvider } from "./context/CartContext";
+import { Toaster } from "sonner";
 
 function Layout() {
   return (
@@ -12,6 +13,7 @@ function Layout() {
         <Header />
         <Outlet />
         <Footer />
+        <Toaster />
       </CartProvider>
     </>
   );

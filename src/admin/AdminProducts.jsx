@@ -10,11 +10,11 @@ export default function AdminProducts() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [editingId, setEditingId] = useState(null); 
+  const [editingId, setEditingId] = useState(null);
 
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]); 
-  const [existingImages, setExistingImages] = useState([]); 
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
 
   const fileInputRef = useRef(null);
 
@@ -23,7 +23,7 @@ export default function AdminProducts() {
     mrp: '',
     originalPrice: '',
     description: '',
-    department: 'women', 
+    department: 'women',
     productType: 'saree',
     collectionType: [], // Array ରହିବ
     curatedCollection: [], // Array ରହିବ
@@ -85,7 +85,7 @@ export default function AdminProducts() {
       sizes: product.sizes?.length > 0 ? product.sizes : [{ sizeName: 'free_size', stock: 10, additionalPrice: 0 }],
       productDetails: product.productDetails || { fabric: '', work: '', inclusions: '' }
     });
-    
+
     setSelectedFiles([]);
     setImagePreviews([]);
     setExistingImages(product.productImages || []);
@@ -104,11 +104,11 @@ export default function AdminProducts() {
   const toggleMultiSelect = (field, value) => {
     const currentArray = formData[field];
     if (currentArray.includes(value)) {
-        // ଯଦି ଆଗରୁ ଅଛି, ତେବେ ତାକୁ ହଟାଇଦିଅନ୍ତୁ (Deselect)
-        setFormData({ ...formData, [field]: currentArray.filter(item => item !== value) });
+      // ଯଦି ଆଗରୁ ଅଛି, ତେବେ ତାକୁ ହଟାଇଦିଅନ୍ତୁ (Deselect)
+      setFormData({ ...formData, [field]: currentArray.filter(item => item !== value) });
     } else {
-        // ନୂଆ ଥିଲେ ଯୋଡିଦିଅନ୍ତୁ (Select)
-        setFormData({ ...formData, [field]: [...currentArray, value] });
+      // ନୂଆ ଥିଲେ ଯୋଡିଦିଅନ୍ତୁ (Select)
+      setFormData({ ...formData, [field]: [...currentArray, value] });
     }
   };
 
@@ -160,7 +160,7 @@ export default function AdminProducts() {
     setIsSubmitting(true);
     try {
       const submitData = new FormData();
-      
+
       submitData.append('name', formData.name);
       submitData.append('mrp', formData.mrp);
       submitData.append('originalPrice', formData.originalPrice);
@@ -183,7 +183,7 @@ export default function AdminProducts() {
         await createProduct(submitData);
         toast.success("New product created successfully! ✨");
       }
-      
+
       closeModal();
       fetchProducts();
     } catch (error) {
@@ -194,14 +194,12 @@ export default function AdminProducts() {
   };
 
   const handleDelete = async (id, name) => {
-    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
-      try {
-        await deleteProduct(id);
-        toast.success("Product deleted permanently. 🗑️");
-        setProducts(products.filter(p => p._id !== id));
-      } catch (error) {
-        toast.error(error.msg || "Failed to delete product.");
-      }
+    try {
+      await deleteProduct(id);
+      toast.success("Product deleted permanently. 🗑️");
+      setProducts(products.filter(p => p._id !== id));
+    } catch (error) {
+      toast.error(error.msg || "Failed to delete product.");
     }
   };
 
@@ -211,7 +209,7 @@ export default function AdminProducts() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-10 font-sans">
       <div className="max-w-7xl mx-auto">
-        
+
         {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
           <div>
@@ -293,189 +291,187 @@ export default function AdminProducts() {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-8 max-h-[75vh] overflow-y-auto">
-                
+
                 {/* 1. Basic Info */}
                 <div className="space-y-4">
-                    <h4 className="font-bold text-[#800020] border-b pb-2">Basic Information</h4>
+                  <h4 className="font-bold text-[#800020] border-b pb-2">Basic Information</h4>
+                  <div className="space-y-1">
+                    <label className="text-sm font-bold text-gray-700">Product Name *</label>
+                    <input type="text" name="name" value={formData.name} onChange={handleInputChange} required className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <label className="text-sm font-bold text-gray-700">Product Name *</label>
-                        <input type="text" name="name" value={formData.name} onChange={handleInputChange} required className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-sm font-bold text-gray-700">MRP (₹) *</label>
-                            <input type="number" name="mrp" value={formData.mrp} onChange={handleInputChange} required className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-sm font-bold text-gray-700">Selling Price (₹) *</label>
-                            <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleInputChange} required className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
-                        </div>
+                      <label className="text-sm font-bold text-gray-700">MRP (₹) *</label>
+                      <input type="number" name="mrp" value={formData.mrp} onChange={handleInputChange} required className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-sm font-bold text-gray-700">Description</label>
-                        <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020] h-24" />
+                      <label className="text-sm font-bold text-gray-700">Selling Price (₹) *</label>
+                      <input type="number" name="originalPrice" value={formData.originalPrice} onChange={handleInputChange} required className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
                     </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm font-bold text-gray-700">Description</label>
+                    <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020] h-24" />
+                  </div>
                 </div>
 
                 {/* 2. Categories & Taxonomy */}
                 <div className="space-y-4">
-                    <h4 className="font-bold text-[#800020] border-b pb-2">Categories</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-sm font-bold text-gray-700">Department</label>
-                            <select name="department" value={formData.department} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg bg-white">
-                                <option value="women">Women</option>
-                                <option value="men">Men</option>
-                                <option value="kids">Kids</option>
-                                <option value="unisex">Unisex</option>
-                            </select>
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-sm font-bold text-gray-700">Product Type</label>
-                            <select name="productType" value={formData.productType} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg bg-white">
-                                <option value="saree">Saree</option>
-                                <option value="lehenga">Lehenga</option>
-                                <option value="suit_set">Suit Set</option>
-                                <option value="jewelry">Jewelry</option>
-                                <option value="tshirt">T-Shirt</option>
-                            </select>
-                        </div>
+                  <h4 className="font-bold text-[#800020] border-b pb-2">Categories</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-sm font-bold text-gray-700">Department</label>
+                      <select name="department" value={formData.department} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg bg-white">
+                        <option value="women">Women</option>
+                        <option value="men">Men</option>
+                        <option value="kids">Kids</option>
+                        <option value="unisex">Unisex</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-sm font-bold text-gray-700">Product Type</label>
+                      <select name="productType" value={formData.productType} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg bg-white">
+                        <option value="saree">Saree</option>
+                        <option value="lehenga">Lehenga</option>
+                        <option value="suit_set">Suit Set</option>
+                        <option value="jewelry">Jewelry</option>
+                        <option value="tshirt">T-Shirt</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* [NEW] BETTER UI: Multi-Select Chips / Pills */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    {/* Collection Type Chips */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Collection Type</label>
+                      <div className="flex flex-wrap gap-2">
+                        {collectionOptions.map((opt) => {
+                          const isSelected = formData.collectionType.includes(opt.value);
+                          return (
+                            <button
+                              type="button"
+                              key={opt.value}
+                              onClick={() => toggleMultiSelect('collectionType', opt.value)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-bold border flex items-center gap-1 transition-colors ${isSelected
+                                  ? 'bg-[#800020] text-white border-[#800020]'
+                                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                              {isSelected && <Check size={12} />}
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    {/* [NEW] BETTER UI: Multi-Select Chips / Pills */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                        {/* Collection Type Chips */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Collection Type</label>
-                            <div className="flex flex-wrap gap-2">
-                                {collectionOptions.map((opt) => {
-                                    const isSelected = formData.collectionType.includes(opt.value);
-                                    return (
-                                        <button
-                                            type="button"
-                                            key={opt.value}
-                                            onClick={() => toggleMultiSelect('collectionType', opt.value)}
-                                            className={`px-3 py-1.5 rounded-full text-xs font-bold border flex items-center gap-1 transition-colors ${
-                                                isSelected 
-                                                ? 'bg-[#800020] text-white border-[#800020]' 
-                                                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-                                            }`}
-                                        >
-                                            {isSelected && <Check size={12} />}
-                                            {opt.label}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {/* Curated Collection Chips */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Curated Collection</label>
-                            <div className="flex flex-wrap gap-2">
-                                {curatedOptions.map((opt) => {
-                                    const isSelected = formData.curatedCollection.includes(opt.value);
-                                    return (
-                                        <button
-                                            type="button"
-                                            key={opt.value}
-                                            onClick={() => toggleMultiSelect('curatedCollection', opt.value)}
-                                            className={`px-3 py-1.5 rounded-full text-xs font-bold border flex items-center gap-1 transition-colors ${
-                                                isSelected 
-                                                ? 'bg-[#800020] text-white border-[#800020]' 
-                                                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-                                            }`}
-                                        >
-                                            {isSelected && <Check size={12} />}
-                                            {opt.label}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                    {/* Curated Collection Chips */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Curated Collection</label>
+                      <div className="flex flex-wrap gap-2">
+                        {curatedOptions.map((opt) => {
+                          const isSelected = formData.curatedCollection.includes(opt.value);
+                          return (
+                            <button
+                              type="button"
+                              key={opt.value}
+                              onClick={() => toggleMultiSelect('curatedCollection', opt.value)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-bold border flex items-center gap-1 transition-colors ${isSelected
+                                  ? 'bg-[#800020] text-white border-[#800020]'
+                                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                              {isSelected && <Check size={12} />}
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
+                  </div>
                 </div>
 
                 {/* 3. Product Details */}
                 <div className="space-y-4">
-                    <h4 className="font-bold text-[#800020] border-b pb-2">Product Details</h4>
-                    <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-sm font-bold text-gray-700">Fabric</label>
-                            <input type="text" name="fabric" value={formData.productDetails.fabric} onChange={handleProductDetailsChange} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-sm font-bold text-gray-700">Work</label>
-                            <input type="text" name="work" value={formData.productDetails.work} onChange={handleProductDetailsChange} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-sm font-bold text-gray-700">Inclusions</label>
-                            <input type="text" name="inclusions" value={formData.productDetails.inclusions} onChange={handleProductDetailsChange} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
-                        </div>
+                  <h4 className="font-bold text-[#800020] border-b pb-2">Product Details</h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-sm font-bold text-gray-700">Fabric</label>
+                      <input type="text" name="fabric" value={formData.productDetails.fabric} onChange={handleProductDetailsChange} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
                     </div>
+                    <div className="space-y-1">
+                      <label className="text-sm font-bold text-gray-700">Work</label>
+                      <input type="text" name="work" value={formData.productDetails.work} onChange={handleProductDetailsChange} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-sm font-bold text-gray-700">Inclusions</label>
+                      <input type="text" name="inclusions" value={formData.productDetails.inclusions} onChange={handleProductDetailsChange} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
+                    </div>
+                  </div>
                 </div>
 
                 {/* 4. Sizes & Inventory */}
                 <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b pb-2">
-                        <h4 className="font-bold text-[#800020]">Sizes & Stock</h4>
-                        <button type="button" onClick={addSizeRow} className="text-sm font-bold text-[#800020] hover:underline flex items-center gap-1"><Plus size={16}/> Add Size</button>
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <h4 className="font-bold text-[#800020]">Sizes & Stock</h4>
+                    <button type="button" onClick={addSizeRow} className="text-sm font-bold text-[#800020] hover:underline flex items-center gap-1"><Plus size={16} /> Add Size</button>
+                  </div>
+                  {formData.sizes.map((sizeObj, idx) => (
+                    <div key={idx} className="flex gap-4 items-end bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      <div className="flex-1 space-y-1">
+                        <label className="text-xs font-bold text-gray-500">Size</label>
+                        <select name="sizeName" value={sizeObj.sizeName} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md bg-white">
+                          <option value="xs">XS</option><option value="s">S</option><option value="m">M</option>
+                          <option value="l">L</option><option value="xl">XL</option><option value="xxl">XXL</option>
+                          <option value="free_size">Free Size</option>
+                        </select>
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <label className="text-xs font-bold text-gray-500">Stock</label>
+                        <input type="number" name="stock" value={sizeObj.stock} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md" min="0" />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <label className="text-xs font-bold text-gray-500">+ Price (Optional)</label>
+                        <input type="number" name="additionalPrice" value={sizeObj.additionalPrice} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md" />
+                      </div>
+                      {formData.sizes.length > 1 && (
+                        <button type="button" onClick={() => removeSizeRow(idx)} className="p-2 mb-0.5 text-red-500 hover:bg-red-50 rounded-md"><Trash2 size={18} /></button>
+                      )}
                     </div>
-                    {formData.sizes.map((sizeObj, idx) => (
-                        <div key={idx} className="flex gap-4 items-end bg-gray-50 p-3 rounded-lg border border-gray-100">
-                            <div className="flex-1 space-y-1">
-                                <label className="text-xs font-bold text-gray-500">Size</label>
-                                <select name="sizeName" value={sizeObj.sizeName} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md bg-white">
-                                    <option value="xs">XS</option><option value="s">S</option><option value="m">M</option>
-                                    <option value="l">L</option><option value="xl">XL</option><option value="xxl">XXL</option>
-                                    <option value="free_size">Free Size</option>
-                                </select>
-                            </div>
-                            <div className="flex-1 space-y-1">
-                                <label className="text-xs font-bold text-gray-500">Stock</label>
-                                <input type="number" name="stock" value={sizeObj.stock} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md" min="0" />
-                            </div>
-                            <div className="flex-1 space-y-1">
-                                <label className="text-xs font-bold text-gray-500">+ Price (Optional)</label>
-                                <input type="number" name="additionalPrice" value={sizeObj.additionalPrice} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md" />
-                            </div>
-                            {formData.sizes.length > 1 && (
-                                <button type="button" onClick={() => removeSizeRow(idx)} className="p-2 mb-0.5 text-red-500 hover:bg-red-50 rounded-md"><Trash2 size={18} /></button>
-                            )}
-                        </div>
-                    ))}
+                  ))}
                 </div>
 
                 {/* 5. Image Upload */}
                 <div className="space-y-4">
-                    <h4 className="font-bold text-[#800020] border-b pb-2">Product Images</h4>
-                    
-                    <div 
-                        onClick={() => fileInputRef.current.click()}
-                        className="w-full border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-[#800020] transition-colors cursor-pointer"
-                    >
-                        <UploadCloud size={40} className="mb-2 text-[#800020]" />
-                        <p className="font-medium">Click to upload images</p>
-                        <p className="text-xs mt-1">PNG, JPG up to 5MB</p>
-                        <input type="file" ref={fileInputRef} onChange={handleFileSelect} multiple accept="image/*" className="hidden" />
-                    </div>
+                  <h4 className="font-bold text-[#800020] border-b pb-2">Product Images</h4>
 
-                    {(imagePreviews.length > 0 || existingImages.length > 0) && (
-                        <div className="flex gap-4 overflow-x-auto pb-2">
-                            {existingImages.map((imgUrl, idx) => (
-                                <div key={`ext-${idx}`} className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden border border-gray-200">
-                                    <img src={imgUrl} alt="Existing" className="w-full h-full object-cover" />
-                                    <button type="button" onClick={() => removeExistingImage(idx)} className="absolute top-1 right-1 bg-white/90 text-red-600 p-1 rounded-full shadow-sm hover:bg-red-50"><X size={14}/></button>
-                                </div>
-                            ))}
-                            {imagePreviews.map((previewUrl, idx) => (
-                                <div key={`new-${idx}`} className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden border border-green-500 border-2 shadow-sm">
-                                    <img src={previewUrl} alt="New Preview" className="w-full h-full object-cover" />
-                                    <button type="button" onClick={() => removeNewImage(idx)} className="absolute top-1 right-1 bg-white/90 text-red-600 p-1 rounded-full shadow-sm hover:bg-red-50"><X size={14}/></button>
-                                </div>
-                            ))}
+                  <div
+                    onClick={() => fileInputRef.current.click()}
+                    className="w-full border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-[#800020] transition-colors cursor-pointer"
+                  >
+                    <UploadCloud size={40} className="mb-2 text-[#800020]" />
+                    <p className="font-medium">Click to upload images</p>
+                    <p className="text-xs mt-1">PNG, JPG up to 5MB</p>
+                    <input type="file" ref={fileInputRef} onChange={handleFileSelect} multiple accept="image/*" className="hidden" />
+                  </div>
+
+                  {(imagePreviews.length > 0 || existingImages.length > 0) && (
+                    <div className="flex gap-4 overflow-x-auto pb-2">
+                      {existingImages.map((imgUrl, idx) => (
+                        <div key={`ext-${idx}`} className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden border border-gray-200">
+                          <img src={imgUrl} alt="Existing" className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => removeExistingImage(idx)} className="absolute top-1 right-1 bg-white/90 text-red-600 p-1 rounded-full shadow-sm hover:bg-red-50"><X size={14} /></button>
                         </div>
-                    )}
+                      ))}
+                      {imagePreviews.map((previewUrl, idx) => (
+                        <div key={`new-${idx}`} className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden border border-green-500 border-2 shadow-sm">
+                          <img src={previewUrl} alt="New Preview" className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => removeNewImage(idx)} className="absolute top-1 right-1 bg-white/90 text-red-600 p-1 rounded-full shadow-sm hover:bg-red-50"><X size={14} /></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
