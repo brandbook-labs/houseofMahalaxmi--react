@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Star, Truck, ShieldCheck, Minus, Plus, ChevronDown, ChevronUp, Ruler, RotateCcw } from 'lucide-react';
-import { getProductById } from '../../services/apiService'; 
-import { useCart } from '../../context/CartContext'; 
+import { getProductById } from '../services/apiService'; 
+import { useCart } from '../context/CartContext'; 
 
 export default function ProductDetails() {
   const { slug } = useParams(); 
+  console.log("Slug: ", slug);
+  
   const { addToCart } = useCart(); 
 
   // ───────────── STATES ─────────────

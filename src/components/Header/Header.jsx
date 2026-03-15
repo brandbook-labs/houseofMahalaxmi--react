@@ -2,20 +2,37 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ShoppingBag, Search, Menu, X, ChevronDown, ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
 const Navbar = () => {
   const { cartCount } = useCart();
+  const navigate = useNavigate();
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Search query
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Refs for Animation
   const mobileMenuRef = useRef(null);
   const mobileLinkRefs = useRef([]);
   const searchInputRef = useRef(null);
   const searchContainerRef = useRef(null);
+
+  // Search Product
+  const handleSearchSubmit = (e) => {
+    // ଯଦି ୟୁଜର୍ Enter ମାରନ୍ତି ଏବଂ ଇନପୁଟ୍ ଖାଲି ନଥାଏ
+    if (e.key === 'Enter' && searchQuery.trim() !== "") {
+        // ସର୍ଚ୍ଚ ପେଜ୍ କୁ ରିଡାଇରେକ୍ଟ କରନ୍ତୁ (URL ରେ କ୍ୱେରୀ ପଠାଇ)
+        navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+        
+        setIsSearchOpen(false); // ସର୍ଚ୍ଚ ବାର୍ ବନ୍ଦ କରନ୍ତୁ
+        setSearchQuery(""); // ଇନପୁଟ୍ ଖାଲି କରନ୍ତୁ
+    }
+  };
 
   // Toggle Body Scroll
   useEffect(() => {
@@ -72,7 +89,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           
           {/* --- UPGRADED LOGO SECTION --- */}
-          <a href="/" className="flex-shrink-0 flex items-center gap-3 z-50 group">
+          <Link to="/" className="flex-shrink-0 flex items-center gap-3 z-50 group">
              {/* <img 
                src="https://jivan.website/jivan.png" 
                alt="House of Mahalaxmi Logo" 
@@ -86,7 +103,7 @@ const Navbar = () => {
                  MAHALAXMI<span className="text-[#800020]">.</span>
                </span>
              </div>
-          </a>
+          </Link>
 
           {/* --- DESKTOP NAVIGATION --- */}
           <div className="hidden md:flex items-center space-x-8">
@@ -167,9 +184,19 @@ const Navbar = () => {
                 <input 
                     ref={searchInputRef}
                     type="text" 
-                    placeholder="Search for sarees, dresses, kurtas..." 
+                    value={searchQuery} // [NEW] ଭ୍ୟାଲୁ ବାଇଣ୍ଡ୍ କରାଗଲା
+                    onChange={(e) => setSearchQuery(e.target.value)} // [NEW] ଟାଇପ୍ କଲେ ଷ୍ଟେଟ୍ ଅପଡେଟ୍ ହେବ
+                    onKeyDown={handleSearchSubmit} // [NEW] Enter କି (key) ଚିହ୍ନିବା ପାଇଁ
+                    placeholder="Search for sarees, dresses, kurtas... (Press Enter to search)" 
                     className="w-full bg-gray-50 border border-gray-300 rounded-full py-4 pl-14 pr-6 text-gray-900 text-lg placeholder-gray-400 focus:outline-none focus:border-[#800020] focus:ring-1 focus:ring-[#800020] transition-colors"
                 />
+                
+                {/* ଛୋଟ କ୍ଲିୟର୍ ବଟନ୍ (Optional) */}
+                {searchQuery && (
+                   <button onClick={() => setSearchQuery("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-900">
+                      <X size={20} />
+                   </button>
+                )}
             </div>
         </div>
       )}

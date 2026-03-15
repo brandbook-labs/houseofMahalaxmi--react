@@ -13,18 +13,20 @@ import {
 import Layout from "./Layout";
 import Home from "./pages/Home";
 import ContactPage from "./components/Contact/Contact";
-import ProductDetails from "./components/Products/ProductDetails";
+import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./components/Products/cart";
 import SuccessPage from "./components/Products/PurchaseSuccess";
-import WomensCollection from "./pages/Women/WomensCollection";
-import MensCollection from "./pages/Men/MensCollection";
-import KidsCollection from "./pages/Kids/KidsCollection";
-import FestiveCollection from "./pages/collections/FestiveCollection";
-import WeddingCollection from "./pages/collections/WeddingCollection";
-import CasualCollection from "./pages/collections/CasualCollection";
-import AccessoriesCollection from "./pages/collections/Accessories";
 import CheckoutPage from "./components/Products/checkout";
 import DepartmentPage from "./pages/DepartmentPage";
+import SearchPage from "./pages/SearchPage";
+
+// import WomensCollection from "./pages/Women/WomensCollection";
+// import MensCollection from "./pages/Men/MensCollection";
+// import KidsCollection from "./pages/Kids/KidsCollection";
+// import FestiveCollection from "./pages/collections/FestiveCollection";
+// import WeddingCollection from "./pages/collections/WeddingCollection";
+// import CasualCollection from "./pages/collections/CasualCollection";
+// import AccessoriesCollection from "./pages/collections/Accessories";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -43,6 +45,8 @@ const router = createBrowserRouter(
       {/* Main Categories */}
       <Route path="/department/:departmentId" element={<DepartmentPage />} />
       <Route path="/collections/:collectionId" element={<DepartmentPage />} />
+
+      <Route path="/search" element={<SearchPage />} />
       
     </Route>
   )
