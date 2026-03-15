@@ -39,6 +39,19 @@ export const createProduct = async (productFormData) => {
     return response.data;
 };
 
+export const updateProduct = async (id, productData) => {
+    try {
+        const response = await apiClient.put(`/products/${id}`, productData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { msg: "Failed to update product" };
+    }
+};
+
 export const deleteProduct = async (id) => {
     const response = await apiClient.delete(`/products/${id}`);
     return response.data;
@@ -53,5 +66,25 @@ export const placeOrderAPI = async (orderPayload) => {
         console.error("Error placing order:", error);
         // Error ମେସେଜ୍ ଫ୍ରଣ୍ଟଏଣ୍ଡ୍ କୁ ପଠାଇବା ପାଇଁ
         return error.response?.data || { success: false, msg: "Something went wrong!" };
+    }
+};
+
+// ଆଡମିନ୍ ର ସବୁ ଅର୍ଡର ଆଣିବା ପାଇଁ
+export const getAllOrdersAdmin = async () => {
+    try {
+        const response = await apiClient.get('/order/all-orders');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { msg: "Failed to fetch orders" };
+    }
+};
+
+// ଅର୍ଡର ର ଷ୍ଟାଟସ୍ ଅପଡେଟ୍ କରିବା ପାଇଁ
+export const updateOrderStatusAdmin = async (id, statusData) => {
+    try {
+        const response = await apiClient.put(`/order/update-status/${id}`, statusData);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { msg: "Failed to update order status" };
     }
 };

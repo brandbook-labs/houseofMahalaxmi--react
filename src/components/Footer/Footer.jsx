@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowUp, Instagram, Facebook, Twitter, ArrowRight, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   const [time, setTime] = useState("");
@@ -72,16 +73,16 @@ export default function Footer() {
          {/* Shop Links */}
          <div className="flex flex-col gap-4 col-span-1 md:col-span-2 md:col-start-6">
             <h4 className="font-serif text-lg font-bold text-gray-900">Shop</h4>
-            <a href="/new-arrivals" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">New Arrivals</a>
-            <a href="/sarees" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Silk Sarees</a>
-            <a href="/festive" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Festive Wear</a>
-            <a href="/accessories" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Accessories</a>
+            <Link href="/collections/festive-wears" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Festive Wear</Link>
+            <Link href="/collections/wedding-collections" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Wedding Collection</Link>
+            <Link href="/collections/everyday-casuals" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Everyday Casuals</Link>
+            <Link to="/collections/accessories" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Accessories</Link>
          </div>
 
          {/* Support Links */}
          <div className="flex flex-col gap-4 col-span-1 md:col-span-2">
             <h4 className="font-serif text-lg font-bold text-gray-900">Support</h4>
-            <a href="/contact" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Contact Us</a>
+            <a href="/contact-us" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Contact Us</a>
             <a href="/faq" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">FAQs</a>
             <a href="/shipping" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Shipping Policy</a>
             <a href="/returns" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Returns & Exchanges</a>

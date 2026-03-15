@@ -20,6 +20,10 @@ import CheckoutPage from "./components/Products/checkout";
 import DepartmentPage from "./pages/DepartmentPage";
 import SearchPage from "./pages/SearchPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import AdminLogin from "./admin/AdminLogin";
+import AdminProducts from "./admin/AdminProducts";
+import AdminProtectedRoute from "./AdminProtectedRoute";
+import AdminOrders from "./admin/AdminOrders";
 
 // import WomensCollection from "./pages/Women/WomensCollection";
 // import MensCollection from "./pages/Men/MensCollection";
@@ -35,9 +39,8 @@ const router = createBrowserRouter(
       {/* Main Pages */}
       <Route path="" element={<Home />} />
       {/* <Route path="/contact-us" element={<ContactPage />} /> */}
-      
+
       {/* E-Commerce Core */}
-      {/* Notice the ":id" here. This makes it a dynamic route. */}
       <Route path="/products/:slug" element={<ProductDetails />} />
       <Route path="/cart" element={<CartPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
@@ -48,6 +51,18 @@ const router = createBrowserRouter(
       <Route path="/collections/:collectionId" element={<DepartmentPage />} />
 
       <Route path="/search" element={<SearchPage />} />
+
+      {/* Admin */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+
+      {/* ADMIN SECURE ROUTES (Protected) */}
+      <Route element={<AdminProtectedRoute />}>
+        {/* ଏଠାରେ ଆମେ ଆମର Product ଏବଂ Order ପେଜ୍ ରଖିବା */}
+        <Route path="/admin/products" element={<AdminProducts />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
+      </Route>
+
+
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   )
