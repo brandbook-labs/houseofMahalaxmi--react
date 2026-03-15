@@ -43,3 +43,15 @@ export const deleteProduct = async (id) => {
     const response = await apiClient.delete(`/products/${id}`);
     return response.data;
 };
+
+// [NEW] Order Place କରିବା ପାଇଁ API
+export const placeOrderAPI = async (orderPayload) => {
+    try {
+        const response = await apiClient.post('/order/place-order', orderPayload);
+        return response.data; // ଏଥିରେ code, msg, data ସବୁ ରହିବ
+    } catch (error) {
+        console.error("Error placing order:", error);
+        // Error ମେସେଜ୍ ଫ୍ରଣ୍ଟଏଣ୍ଡ୍ କୁ ପଠାଇବା ପାଇଁ
+        return error.response?.data || { success: false, msg: "Something went wrong!" };
+    }
+};

@@ -1,41 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ArrowRight, Smartphone, User, CheckCircle2, 
   Wallet, Banknote, ShieldCheck, Loader2, X, Clock, MapPin
 } from 'lucide-react';
+import { toast } from 'sonner';
 
-// --- MOCK DATABASE ---
+import { placeOrderAPI } from '../../services/apiService'; 
+import { useCart } from '../../context/CartContext'; 
+
+// ମକ୍ ୟୁଜର୍ ଚେକ୍ କରିବା ପାଇଁ (UI ଆନିମେସନ୍)
 const EXISTING_USERS = ['9876543210', '9999999999']; 
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { clearCart } = useCart(); 
+
+  // ───────────── 1. DYNAMIC CART DATA ─────────────
+  const { items: cartItems = [], totals = { subtotal: 0, tax: 0, grandTotal: 0 } } = location.state || {};
+
+  useEffect(() => {
+      // କାର୍ଟ ଖାଲି ଥିଲେ ସିଧା କାର୍ଟ ପେଜ୍ କୁ ଫେରାଇଦେବୁ
+      if (!cartItems || cartItems.length === 0) {
+          toast.info("Your cart is empty!");
+          navigate('/cart', { replace: true });
+      }
+  }, [cartItems, navigate]);
   
-  // Data State
+  // ───────────── 2. FORM STATES ─────────────
   const [mobile, setMobile] = useState('');
   const [name, setName] = useState('');
-  const [address, setAddress] = useState({
-    flat: '',
-    area: '',
-    pincode: '',
-    city: '',
-    state: ''
-  });
-  const [totalAmount] = useState(50000); 
+  const [address, setAddress] = useState({ flat: '', area: '', pincode: '', city: '', state: '' });
+  const [paymentMethod] = useState('cash_on_delivery'); // API ସ୍କିମା ଅନୁସାରେ
   
-  // Logic State
+  // Logic States
   const [isChecking, setIsChecking] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [isMobileValid, setIsMobileValid] = useState(false);
-  
-  // Forced strictly to cash since Online Payments are hidden
-  const [paymentMethod] = useState('cash'); 
-  
-  // Modal / Gateway State
-  const [showGateway, setShowGateway] = useState(false);
-  const [orderStatus, setOrderStatus] = useState('pending'); // pending -> processing -> success
 
-  // --- 1. IDENTITY & ADDRESS LOGIC ---
+  // ───────────── 3. MODAL STATES ─────────────
+  const [showGateway, setShowGateway] = useState(false);
+  const [orderStatus, setOrderStatus] = useState('pending'); // pending -> processing -> success/failed
+
+  // --- INPUT HANDLERS ---
   const handleMobileChange = (e) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 10);
     setMobile(val);
@@ -50,10 +58,10 @@ export default function CheckoutPage() {
     setAddress({ ...address, [e.target.name]: e.target.value });
   };
 
+  // ମୋବାଇଲ୍ ନମ୍ବର ଟାଇପ୍ ସରିଲେ UI ଆନିମେସନ୍ ପାଇଁ
   useEffect(() => {
     if (mobile.length === 10) {
         setIsChecking(true);
-        // Simulate API call to check if user exists
         setTimeout(() => {
             setIsChecking(false);
             setIsMobileValid(true);
@@ -64,63 +72,83 @@ export default function CheckoutPage() {
     }
   }, [mobile]);
 
-  // --- 2. ORDER INITIATION & VALIDATION ---
-  const handleProceed = () => {
-    if (!isMobileValid) return alert("Please enter a valid 10-digit mobile number.");
-    if (isNewUser && name.length < 2) return alert("Please enter your name.");
+  // ───────────── 4. THE MAGIC FUNCTION (HANDLE PROCEED) ─────────────
+  // ଏହି ଫଙ୍କସନ୍ ଟି "Place Order" ବଟନ୍ ରେ ବ୍ୟବହାର ହୋଇଛି
+  const handleProceed = async () => {
     
-    // Validate Address
+    // ଭ୍ୟାଲିଡେସନ୍
+    if (mobile.length !== 10) return toast.error("Please enter a valid 10-digit mobile number.");
+    if (name.trim().length < 2) return toast.error("Please enter your full name.");
     if (!address.flat || !address.area || !address.pincode || !address.city || !address.state) {
-        return alert("Please fill in your complete shipping address.");
+        return toast.error("Please fill in your complete shipping address.");
     }
     
-    // Open the Gateway Modal
+    // ୧. ପ୍ରଥମେ "Pending" ଷ୍ଟାଟସ୍ ସହ ଗେଟୱେ ମୋଡାଲ୍ ଖୋଲନ୍ତୁ (ଏହା Verifying details ଦେଖାଇବ)
     setOrderStatus('pending');
     setShowGateway(true);
+
+    try {
+        // ୨. ୩ ସେକେଣ୍ଡ୍ ପାଇଁ ଅପେକ୍ଷା କରନ୍ତୁ (ଆପଣଙ୍କ ପୁରୁଣା ସିମୁଲେସନ୍ ପରି)
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // ୩. ଷ୍ଟାଟସ୍ କୁ "Processing" କୁ ବଦଳାନ୍ତୁ (ଏହା Finalizing Order ଦେଖାଇବ)
+        setOrderStatus('processing');
+
+        // ୪. ବ୍ୟାକେଣ୍ଡ୍ ପାଇଁ ପେଲୋଡ୍ ତିଆରି କରନ୍ତୁ
+        const orderPayload = {
+            name: name.trim(),
+            phone: mobile,
+            shippingAddress: address,
+            paymentMethod: paymentMethod, 
+            products: cartItems.map(item => ({
+                product: item.id,
+                size: item.selectedSize || "Free Size",
+                quantity: item.quantity
+            }))
+        };
+
+        // ୫. ପ୍ରକୃତ API କଲ୍ କରନ୍ତୁ 
+        const response = await placeOrderAPI(orderPayload);
+        console.log("✅ API Response:", response);
+
+        if (response.code === 201 || response.code === 200) {
+            // ୬. ସଫଳ ହେଲେ "Success" ଷ୍ଟାଟସ୍ ଦେଖାନ୍ତୁ (ଏହା Order Confirmed ଦେଖାଇବ)
+            setOrderStatus('success');
+            clearCart(); // ଗ୍ଲୋବାଲ୍ କାର୍ଟ ଖାଲି କରିବେ
+            toast.success("Order placed successfully! 🎉");
+            
+            const actualOrderData = response.data; // ବ୍ୟାକେଣ୍ଡ୍ ରୁ ଆସିଥିବା ପ୍ରକୃତ ଡାଟା
+
+            // ୭. ୨ ସେକେଣ୍ଡ୍ ପରେ ସକ୍ସେସ୍ ପେଜ୍ କୁ ରିଡାଇରେକ୍ଟ କରନ୍ତୁ
+            setTimeout(() => {
+                navigate('/success', { 
+                    replace: true, 
+                    state: { orderDetails: actualOrderData } 
+                });
+            }, 2000);
+
+        } else {
+            setOrderStatus('failed');
+            setShowGateway(false);
+            toast.error(response.msg || "Failed to place order.");
+        }
+
+    } catch (error) {
+        console.error("Order Submit Error:", error);
+        setOrderStatus('failed');
+        setShowGateway(false);
+        toast.error("Server error! Please try again later.");
+    }
   };
 
-  // --- 3. SIMULATION LOGIC (Backend Replacement) ---
-  useEffect(() => {
-    if (showGateway && orderStatus === 'pending') {
-
-        // LOGIC FOR CASH ONLY
-        if (paymentMethod === 'cash') {
-            // SIMULATE COD VERIFICATION
-            const codTimer = setTimeout(() => {
-                setOrderStatus('processing'); 
-                setTimeout(() => {
-                    setOrderStatus('success'); 
-                    setTimeout(() => navigate('/success'), 2000); // Redirect to success page
-                }, 2000);
-            }, 3000); 
-            return () => clearTimeout(codTimer);
-        }
-        
-        // ONLINE PAYMENT LOGIC COMMENTED OUT
-        /* else {
-            const upiTimer = setTimeout(() => {
-                setOrderStatus('processing');
-                setTimeout(() => {
-                    setOrderStatus('success');
-                    setTimeout(() => navigate('/success'), 2000);
-                }, 2000);
-            }, 8000);
-            return () => clearTimeout(upiTimer);
-        } */
-    }
-  }, [showGateway, paymentMethod, orderStatus, navigate]);
-
   const formatPrice = (price) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price);
-
-  // Shared input styling for cleaner code
   const inputClass = "w-full bg-transparent border-b-2 border-gray-200 h-12 text-base text-gray-900 placeholder-gray-400 focus:border-[#800020] focus:outline-none transition-colors";
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pt-12 md:pt-24 pb-20 relative">
-      
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         
-        {/* Header */}
+        {/* --- HEADER --- */}
         <div className="mb-8 md:mb-12 border-b border-gray-200 pb-6 text-center md:text-left">
            <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 leading-none">
              Secure <span className="text-gray-400 font-normal">Checkout</span>
@@ -129,10 +157,10 @@ export default function CheckoutPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             
-            {/* === LEFT: IDENTITY, ADDRESS & PAYMENT SELECTION === */}
+            {/* === LEFT: CONTACT, ADDRESS & PAYMENT === */}
             <div className="lg:col-span-8 space-y-6 md:space-y-8">
                
-               {/* Contact Details */}
+               {/* 1. Contact Details */}
                <section className="bg-white border border-gray-200 shadow-sm rounded-xl p-6 md:p-8">
                     <h2 className="text-lg font-serif font-bold text-gray-900 mb-6 flex items-center gap-2">
                        <Smartphone size={20} className="text-[#800020]" />
@@ -144,26 +172,21 @@ export default function CheckoutPage() {
                             type="tel" 
                             value={mobile}
                             onChange={handleMobileChange}
-                            placeholder="Mobile Number"
+                            placeholder="Mobile Number *"
                             className="w-full bg-transparent border-b-2 border-gray-200 h-14 pl-12 text-xl tracking-wide text-gray-900 placeholder-gray-400 focus:border-[#800020] focus:outline-none transition-colors"
                           />
                           <span className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-lg">+91</span>
                           <div className="absolute right-0 top-1/2 -translate-y-1/2">
                              {isChecking && <Loader2 className="animate-spin text-[#800020]" size={20} />}
                              {!isChecking && isMobileValid && !isNewUser && (
-                               <span className="text-xs font-bold text-[#800020] uppercase bg-[#800020]/10 px-3 py-1.5 rounded-full">
-                                 Welcome Back
-                               </span>
+                               <span className="text-xs font-bold text-[#800020] uppercase bg-[#800020]/10 px-3 py-1.5 rounded-full">Welcome Back</span>
                              )}
                              {!isChecking && isMobileValid && isNewUser && (
-                               <span className="text-xs font-bold text-gray-600 uppercase bg-gray-100 px-3 py-1.5 rounded-full">
-                                 New User
-                               </span>
+                               <span className="text-xs font-bold text-gray-600 uppercase bg-gray-100 px-3 py-1.5 rounded-full">New User</span>
                              )}
                           </div>
                        </div>
                        
-                       {/* Name Field (Expands smoothly using native CSS) */}
                        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isNewUser ? 'max-h-24 opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'}`}>
                           <div className="relative">
                             <input 
@@ -179,7 +202,7 @@ export default function CheckoutPage() {
                     </div>
                </section>
 
-               {/* Shipping Address */}
+               {/* 2. Shipping Address */}
                <section className={`bg-white border border-gray-200 shadow-sm rounded-xl p-6 md:p-8 overflow-hidden transition-all duration-500 ease-in-out ${isMobileValid ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0 p-0 border-0 shadow-none'}`}>
                     <h2 className="text-lg font-serif font-bold text-gray-900 mb-6 flex items-center gap-2">
                        <MapPin size={20} className="text-[#800020]" />
@@ -187,67 +210,32 @@ export default function CheckoutPage() {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
                         <div className="md:col-span-2">
-                           <input 
-                             type="text" name="flat" value={address.flat} onChange={handleAddressChange}
-                             placeholder="Flat, House no., Building, Apartment *"
-                             className={inputClass}
-                           />
+                           <input type="text" name="flat" value={address.flat} onChange={handleAddressChange} placeholder="Flat, House no., Building, Apartment *" className={inputClass} />
                         </div>
                         <div className="md:col-span-2">
-                           <input 
-                             type="text" name="area" value={address.area} onChange={handleAddressChange}
-                             placeholder="Area, Street, Sector, Village *"
-                             className={inputClass}
-                           />
+                           <input type="text" name="area" value={address.area} onChange={handleAddressChange} placeholder="Area, Street, Sector, Village *" className={inputClass} />
                         </div>
                         <div>
-                           <input 
-                             type="text" name="pincode" value={address.pincode} onChange={handleAddressChange}
-                             placeholder="Pincode *"
-                             maxLength="6"
-                             className={inputClass}
-                           />
+                           <input type="text" name="pincode" value={address.pincode} onChange={handleAddressChange} placeholder="Pincode *" maxLength="6" className={inputClass} />
                         </div>
                         <div>
-                           <input 
-                             type="text" name="city" value={address.city} onChange={handleAddressChange}
-                             placeholder="Town / City *"
-                             className={inputClass}
-                           />
+                           <input type="text" name="city" value={address.city} onChange={handleAddressChange} placeholder="Town / City *" className={inputClass} />
                         </div>
                         <div className="md:col-span-2">
-                           <input 
-                             type="text" name="state" value={address.state} onChange={handleAddressChange}
-                             placeholder="State *"
-                             className={inputClass}
-                           />
+                           <input type="text" name="state" value={address.state} onChange={handleAddressChange} placeholder="State *" className={inputClass} />
                         </div>
                     </div>
                </section>
 
-               {/* Payment Method Selector */}
+               {/* 3. Payment Method Selector */}
                <section className="bg-white border border-gray-200 shadow-sm rounded-xl p-6 md:p-8">
                     <h2 className="text-lg font-serif font-bold text-gray-900 mb-6 flex items-center gap-2">
                        <Wallet size={20} className="text-[#800020]" />
                        Payment Method
                     </h2>
                     <div className="flex flex-col sm:flex-row gap-4">
-                        
-                        {/* ONLINE PAYMENT COMMENTED OUT
-                        <button 
-                           onClick={() => setPaymentMethod('upi')}
-                           className={`...`}
-                        >
-                           ...
-                           <span className="font-bold tracking-wide text-sm">UPI / Online Pay</span>
-                        </button>
-                        */}
-
-                        <button 
-                           // onClick={() => setPaymentMethod('cash')} // No longer needed as it's the only option
-                           className={`flex items-center gap-3 px-6 py-4 rounded-lg border-2 transition-all duration-300 flex-1 justify-start bg-[#800020]/5 border-[#800020] text-[#800020]`}
-                        >
-                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center border-[#800020]`}>
+                        <button className="flex items-center gap-3 px-6 py-4 rounded-lg border-2 transition-all duration-300 flex-1 justify-start bg-[#800020]/5 border-[#800020] text-[#800020] cursor-default">
+                           <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center border-[#800020]">
                               <div className="w-2.5 h-2.5 bg-[#800020] rounded-full"></div>
                            </div>
                            <span className="font-bold tracking-wide text-sm">Cash on Delivery</span>
@@ -262,20 +250,20 @@ export default function CheckoutPage() {
                   <h3 className="text-xl font-serif font-bold text-gray-900 mb-6">Order Summary</h3>
                   <div className="space-y-4 mb-8">
                       <div className="flex justify-between items-center text-sm text-gray-600">
-                          <span>Subtotal</span>
-                          <span className="font-medium text-gray-900">{formatPrice(42372)}</span>
+                          <span>Subtotal ({cartItems.length} items)</span>
+                          <span className="font-medium text-gray-900">{formatPrice(totals.subtotal)}</span>
                       </div>
                       <div className="flex justify-between items-center text-sm text-gray-600">
                           <span>Estimated GST</span>
-                          <span className="font-medium text-gray-900">{formatPrice(7628)}</span>
+                          <span className="font-medium text-gray-900">{formatPrice(totals.tax)}</span>
                       </div>
                       <div className="pt-4 mt-2 border-t border-gray-200 flex justify-between items-end">
                           <span className="text-base font-bold text-gray-900">Total</span>
-                          <span className="text-3xl font-serif font-bold text-[#800020] leading-none">{formatPrice(totalAmount)}</span>
+                          <span className="text-3xl font-serif font-bold text-[#800020] leading-none">{formatPrice(totals.grandTotal)}</span>
                       </div>
                   </div>
 
-                  {/* PROCEED BUTTON */}
+                  {/* ଏହି ବଟନ୍ ରେ handleProceed କଲ୍ ହେଉଛି */}
                   <button 
                       onClick={handleProceed}
                       disabled={!isMobileValid}
@@ -298,35 +286,30 @@ export default function CheckoutPage() {
       </div>
 
       {/* ============================================== */}
-      {/* === UNIFIED PAYMENT/REQUEST MODAL === */}
+      {/* === MODAL: API PROCESSING & SUCCESS === */}
       {/* ============================================== */}
       {showGateway && (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-gray-900/60 backdrop-blur-sm p-0 md:p-4 transition-opacity">
-            
             <div className="w-full md:w-[450px] bg-white border border-gray-200 rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-300">
-                {/* Modal Header */}
+                
                 <div className="bg-gray-50 p-4 flex justify-between items-center border-b border-gray-200">
                     <div className="flex items-center gap-2 text-[#800020] text-sm font-bold tracking-wide">
-                        <ShieldCheck size={18} /> Secure Gateway
+                        <ShieldCheck size={18} /> Secure Checkout
                     </div>
-                    <button onClick={() => setShowGateway(false)} className="text-gray-400 hover:text-gray-900 transition-colors">
-                        <X size={24} />
-                    </button>
+                    {/* Processing ବେଳେ ବନ୍ଦ କରିବାକୁ ଦେବୁ ନାହିଁ */}
+                    {orderStatus !== 'processing' && (
+                        <button onClick={() => setShowGateway(false)} className="text-gray-400 hover:text-gray-900 transition-colors">
+                            <X size={24} />
+                        </button>
+                    )}
                 </div>
 
                 <div className="p-6 md:p-8 flex flex-col items-center text-center">
-                    
-                    {/* Amount Display */}
                     <p className="text-gray-500 text-sm font-medium uppercase mb-1 tracking-wider">Amount to Pay</p>
-                    <h2 className="text-4xl font-serif font-bold text-gray-900 mb-8">{formatPrice(totalAmount)}</h2>
+                    <h2 className="text-4xl font-serif font-bold text-gray-900 mb-8">{formatPrice(totals.grandTotal)}</h2>
 
-                    {/* --- CASE 1: UPI PAYMENT COMMENTED OUT --- */}
-                    {/* {paymentMethod === 'upi' && orderStatus === 'pending' && (
-                        ...
-                    )} */}
-
-                    {/* --- CASE 2: CASH ON DELIVERY --- */}
-                    {paymentMethod === 'cash' && orderStatus === 'pending' && (
+                    {/* Pending State (Verifying) */}
+                    {orderStatus === 'pending' && (
                         <>
                             <div className="w-24 h-24 bg-gray-50 border border-gray-200 rounded-full flex items-center justify-center mb-6 relative">
                                 <Banknote size={40} className="text-gray-400" />
@@ -344,16 +327,18 @@ export default function CheckoutPage() {
                         </>
                     )}
 
-                    {/* --- COMMON STATES: PROCESSING & SUCCESS --- */}
+                    {/* Processing State (API Call Active) */}
                     {orderStatus === 'processing' && (
                         <div className="py-10">
                             <Loader2 size={48} className="text-[#800020] animate-spin mb-6 mx-auto" />
-                            <h3 className="text-xl font-serif font-bold text-gray-900">
+                            <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">
                                 Finalizing Order...
                             </h3>
+                            <p className="text-sm text-gray-500">Please do not close or refresh this window.</p>
                         </div>
                     )}
 
+                    {/* Success State */}
                     {orderStatus === 'success' && (
                         <div className="py-10 animate-in zoom-in duration-300">
                             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
@@ -361,16 +346,14 @@ export default function CheckoutPage() {
                             </div>
                             <h3 className="text-2xl font-serif font-bold text-gray-900">Order Confirmed!</h3>
                             <p className="text-gray-500 text-base mt-2">
-                                You can pay using cash upon delivery.
+                                Redirecting to success page...
                             </p>
                         </div>
                     )}
-
                 </div>
             </div>
         </div>
       )}
-
     </div>
   );
 }
