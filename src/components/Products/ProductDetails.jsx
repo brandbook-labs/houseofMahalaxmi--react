@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Star, Truck, ShieldCheck, Minus, Plus, ChevronDown, ChevronUp, Ruler, RotateCcw } from 'lucide-react';
-import { getProductById } from '../../services/apiService'; // ଆପଣଙ୍କ API ସର୍ଭିସ୍
-import { useCart } from '../../context/CartContext'; // Cart Hook
+import { getProductById } from '../../services/apiService'; 
+import { useCart } from '../../context/CartContext'; 
 
 export default function ProductDetails() {
   const { slug } = useParams(); 
-  const { addToCart } = useCart(); // ଗ୍ଲୋବାଲ୍ କାର୍ଟ ଅପଡେଟ୍ କରିବା ପାଇଁ
+  const { addToCart } = useCart(); 
 
   // ───────────── STATES ─────────────
   const [product, setProduct] = useState(null);
@@ -25,7 +25,6 @@ export default function ProductDetails() {
         const responseData = await getProductById(slug);
         if (responseData) {
           setProduct(responseData);
-          // ଯଦି ପ୍ରଡକ୍ଟ ର sizes ଅଛି ଏବଂ stock > 0, ପ୍ରଥମ ସାଇଜ୍ ସିଲେକ୍ଟ କରନ୍ତୁ
           if (responseData.sizes && responseData.sizes.length > 0) {
               const availableSize = responseData.sizes.find(s => s.stock > 0);
               if (availableSize) setSelectedSize(availableSize.sizeName);
@@ -46,13 +45,18 @@ export default function ProductDetails() {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price);
   };
 
+  // ───────────── ADD TO CART LOGIC ─────────────
   const handleAddToCart = () => {
       if (!selectedSize && product.sizes?.length > 0) {
           alert("Please select a size first!");
           return;
       }
-      addToCart(quantity); // ଗ୍ଲୋବାଲ୍ କାର୍ଟ ଷ୍ଟେଟ୍ ଅପଡେଟ୍ ହେବ
-      // ଏଠାରେ ଆପଣ ଏକ ସୁନ୍ଦର Toast ମେସେଜ୍ ମଧ୍ୟ ଦେଖାଇ ପାରିବେ
+
+      // [FIXED] Context ନିୟମ ଅନୁସାରେ ସମ୍ପୂର୍ଣ୍ଣ ଡାଟା ପଠାଗଲା
+      addToCart(product, selectedSize || 'Free Size', quantity); 
+      
+      // ୟୁଜର୍ କୁ ସୂଚନା ଦେବା ପାଇଁ ଏକ ଆଲର୍ଟ୍ ବା ଟୋଷ୍ଟ୍
+      alert("Item added to your bag successfully!"); 
   };
 
   if (isLoading) {
@@ -63,7 +67,6 @@ export default function ProductDetails() {
       return <div className="min-h-screen flex items-center justify-center text-xl text-gray-500">Product not found!</div>;
   }
 
-  // Fallback ଇମେଜ୍ ଯଦି ଆରେ (Array) ଖାଲି ଥାଏ
   const displayImages = product.productImages?.length > 0 ? product.productImages : ['https://images.unsplash.com/photo-1583391733958-d25e0b46410f?q=80&w=600&auto=format&fit=crop'];
 
   return (
@@ -124,7 +127,6 @@ export default function ProductDetails() {
               {product.name}
             </h1>
 
-            {/* Rating (ଖାଲି ଥିଲେ ଦେଖାଇବ ନାହିଁ) */}
             {product.averageRating > 0 && (
                 <div className="flex items-center gap-4 mb-6">
                    <div className="flex items-center gap-1">
@@ -138,7 +140,6 @@ export default function ProductDetails() {
                 </div>
             )}
 
-            {/* Price */}
             <div className="flex items-end gap-3 mb-6 pb-6 border-b border-gray-200">
                <span className="text-3xl font-serif font-bold text-gray-900 leading-none">
                  {formatPrice(product.originalPrice)}
@@ -161,7 +162,6 @@ export default function ProductDetails() {
                 </p>
             )}
 
-            {/* Sizes (ଖାଲି ଥିଲେ ଦେଖାଇବ ନାହିଁ) */}
             {product.sizes && product.sizes.length > 0 && (
                 <div className="mb-8">
                    <div className="flex justify-between items-center mb-4">
@@ -194,7 +194,6 @@ export default function ProductDetails() {
                 </div>
             )}
 
-            {/* Add to Cart Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
                <div className="flex items-center justify-between border border-gray-300 rounded-md px-4 py-3 w-full sm:w-32 bg-white">
                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-500 hover:text-gray-900"><Minus size={16} /></button>
@@ -207,8 +206,35 @@ export default function ProductDetails() {
                </button>
             </div>
 
-            {/* Accordions (Product Details Mapping) */}
+            {/* ───────────── TRUST BADGES (ALWAYS SHOW BY DEFAULT) ───────────── */}
+            <div className="grid grid-cols-2 gap-4 mb-10 p-5 bg-gray-50 rounded-xl border border-gray-100">
+               <div className="flex items-center gap-3">
+                 <Truck size={20} className="text-[#800020]" />
+                 <div>
+                   <p className="text-sm font-bold text-gray-900">Free Shipping</p>
+                   <p className="text-xs text-gray-500">On orders over ₹5000</p>
+                 </div>
+               </div>
+               <div className="flex items-center gap-3">
+                 <RotateCcw size={20} className="text-[#800020]" />
+                 <div>
+                   <p className="text-sm font-bold text-gray-900">Easy Returns</p>
+                   <p className="text-xs text-gray-500">7-day return policy</p>
+                 </div>
+               </div>
+               <div className="col-span-2 flex items-center gap-3 mt-2 pt-4 border-t border-gray-200">
+                 <ShieldCheck size={20} className="text-[#800020]" />
+                 <div>
+                   <p className="text-sm font-bold text-gray-900">Cash on Delivery</p>
+                   <p className="text-xs text-gray-500">Available across all major pin codes</p>
+                 </div>
+               </div>
+            </div>
+
+            {/* ───────────── ACCORDIONS ───────────── */}
             <div className="border-t border-gray-200">
+               
+               {/* Product Details (Conditional: API ରୁ ଥିଲେ ଆସିବ) */}
                {product.productDetails && (Object.keys(product.productDetails).length > 0) && (
                    <div className="border-b border-gray-200">
                      <button onClick={() => setActiveAccordion(activeAccordion === 'details' ? null : 'details')} className="w-full py-5 flex justify-between items-center text-left">
@@ -217,7 +243,6 @@ export default function ProductDetails() {
                      </button>
                      <div className={`overflow-hidden transition-all duration-300 ${activeAccordion === 'details' ? 'max-h-96 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <ul className="space-y-3">
-                          {/* କେବଳ ଭ୍ୟାଲୁ ଥିଲେ ହିଁ ରେଣ୍ଡର୍ ହେବ */}
                           {product.productDetails.fabric && (
                               <li className="flex flex-col sm:flex-row text-sm"><span className="font-bold text-gray-900 sm:w-1/3">Fabric:</span><span className="text-gray-600 sm:w-2/3">{product.productDetails.fabric}</span></li>
                           )}
@@ -231,8 +256,22 @@ export default function ProductDetails() {
                      </div>
                    </div>
                )}
-            </div>
 
+               {/* Shipping & Delivery (Default: ସବୁବେଳେ ଦେଖାଇବ) */}
+               <div className="border-b border-gray-200">
+                 <button onClick={() => setActiveAccordion(activeAccordion === 'shipping' ? null : 'shipping')} className="w-full py-5 flex justify-between items-center text-left">
+                   <span className="text-sm font-bold uppercase tracking-widest text-gray-900">Shipping & Delivery</span>
+                   {activeAccordion === 'shipping' ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                 </button>
+                 <div className={`overflow-hidden transition-all duration-300 ${activeAccordion === 'shipping' ? 'max-h-96 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {/* ଯଦି API ରୁ ଆସେ ତେବେ ତାହା ଦେଖାଇବ, ନହେଲେ ଡିଫଲ୍ଟ ଟେକ୍ସଟ୍ */}
+                      {product.shippingInfo ? product.shippingInfo : "Standard orders are dispatched within 2-3 business days. Custom-fit orders require an additional 5-7 days for tailoring. You will receive a tracking link via email once your order is shipped."}
+                    </p>
+                 </div>
+               </div>
+
+            </div>
           </div>
         </div>
       </div>

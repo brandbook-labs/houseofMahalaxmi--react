@@ -41,13 +41,8 @@ const router = createBrowserRouter(
       <Route path="/success" element={<SuccessPage />} />
 
       {/* Main Categories */}
-      <Route path="/department/:category" element={<DepartmentPage />} />
-
-      {/* Sub-Collections */}
-      <Route path="/collections/festive" element={<FestiveCollection />} />
-      <Route path="/collections/wedding" element={<WeddingCollection />} />
-      <Route path="/collections/casuals" element={<CasualCollection />} />
-      <Route path="/collections/accessories" element={<AccessoriesCollection />} />
+      <Route path="/department/:departmentId" element={<DepartmentPage />} />
+      <Route path="/collections/:collectionId" element={<DepartmentPage />} />
       
     </Route>
   )

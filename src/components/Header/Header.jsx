@@ -109,15 +109,15 @@ const Navbar = () => {
               <div className={`absolute top-full left-1/2 -translate-x-1/2 w-72 bg-white border border-gray-100 rounded-lg shadow-xl p-2 transition-all duration-200 origin-top ${isServicesOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                 <div className="flex flex-col">
                   {[
-                    { title: "Festive Wear", sub: "Sarees, Lehengas & Sets", href: "/collections/festive" },
-                    { title: "Wedding Collection", sub: "Bridal & Groom Elegance", href: "/collections/wedding" },
-                    { title: "Everyday Casuals", sub: "Comfortable & Stylish", href: "/collections/casuals" },
+                    { title: "Festive Wear", sub: "Sarees, Lehengas & Sets", href: "/collections/festive-wears" },
+                    { title: "Wedding Collection", sub: "Bridal & Groom Elegance", href: "/collections/wedding-collections" },
+                    { title: "Everyday Casuals", sub: "Comfortable & Stylish", href: "/collections/everyday-casuals" },
                     { title: "Accessories", sub: "Jewelry, Bags & Footwear", href: "/collections/accessories" }
                   ].map((item, idx) => (
-                    <a key={idx} href={item.href} className="block px-4 py-3 rounded-md hover:bg-gray-50 hover:text-[#800020] transition-colors group/item">
+                    <Link key={idx} to={item.href} className="block px-4 py-3 rounded-md hover:bg-gray-50 hover:text-[#800020] transition-colors group/item">
                       <span className="block text-sm font-semibold group-hover/item:translate-x-1 transition-transform">{item.title}</span>
                       <span className="block text-xs text-gray-500 mt-0.5">{item.sub}</span>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -204,20 +204,20 @@ const Navbar = () => {
                <p ref={addToRefs} className="text-[#800020] font-mono text-sm uppercase tracking-widest mb-4">Shop By Collection</p>
                
                {[
-                 { name: "Festive Wear", href: "/collections/festive" },
-                 { name: "Wedding Collection", href: "/collections/wedding" },
-                 { name: "Everyday Casuals", href: "/collections/casuals" },
+                 { name: "Festive Wear", href: "/collections/festive-wears" },
+                 { name: "Wedding Collection", href: "/collections/wedding-collections" },
+                 { name: "Everyday Casuals", href: "/collections/everyday-casuals" },
                  { name: "Accessories", href: "/collections/accessories" },
                ].map((service, i) => (
-                  <a 
+                  <Link 
                     key={i} 
                     ref={addToRefs} 
-                    href={service.href} 
+                    to={service.href} 
                     className="flex items-center justify-between text-xl text-gray-600 hover:text-gray-900 group py-2 border-b border-gray-100"
                   >
                     {service.name}
                     <ArrowRight size={16} className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#800020]" />
-                  </a>
+                  </Link>
                ))}
             </div>
           </div>
