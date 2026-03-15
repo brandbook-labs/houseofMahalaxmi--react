@@ -24,6 +24,7 @@ import AdminLogin from "./admin/AdminLogin";
 import AdminProducts from "./admin/AdminProducts";
 import AdminProtectedRoute from "./AdminProtectedRoute";
 import AdminOrders from "./admin/AdminOrders";
+import AdminLayout from "./AdminLayout";
 
 // import WomensCollection from "./pages/Women/WomensCollection";
 // import MensCollection from "./pages/Men/MensCollection";
@@ -57,9 +58,10 @@ const router = createBrowserRouter(
 
       {/* ADMIN SECURE ROUTES (Protected) */}
       <Route element={<AdminProtectedRoute />}>
-        {/* ଏଠାରେ ଆମେ ଆମର Product ଏବଂ Order ପେଜ୍ ରଖିବା */}
-        <Route path="/admin/products" element={<AdminProducts />} />
-        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+        </Route>
       </Route>
 
 
