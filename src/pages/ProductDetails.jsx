@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Star, Truck, ShieldCheck, Minus, Plus, ChevronDown, ChevronUp, Ruler, RotateCcw } from 'lucide-react';
 import { getProductById } from '../services/apiService'; 
 import { useCart } from '../context/CartContext'; 
-import { toast } from 'sonner'; // [NEW] ଟୋଷ୍ଟ୍ ଇମ୍ପୋର୍ଟ କରନ୍ତୁ
+import { toast } from 'sonner';
 
 
 export default function ProductDetails() {
@@ -27,6 +27,7 @@ export default function ProductDetails() {
         const responseData = await getProductById(slug);
         if (responseData) {
           setProduct(responseData);
+          // ଡିଫଲ୍ଟ ସାଇଜ୍ ସିଲେକ୍ଟ କରିବା
           if (responseData.sizes && responseData.sizes.length > 0) {
               const availableSize = responseData.sizes.find(s => s.stock > 0);
               if (availableSize) setSelectedSize(availableSize.sizeName);
@@ -47,18 +48,37 @@ export default function ProductDetails() {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price);
   };
 
+  // ───────────── [NEW] PRICE CALCULATION LOGIC ─────────────
+  // ୟୁଜର୍ ବାଛିଥିବା ସାଇଜ୍ ର ଡାଟା ଖୋଜିବା
+  const activeSizeData = product?.sizes?.find(s => s.sizeName === selectedSize);
+  
+  // ଯଦି activeSizeData ରେ additionalPrice ଅଛି, ତେବେ ତାକୁ ମେନ୍ ପ୍ରାଇସ୍ ସହ ମିଶାଇବା ନଚେତ୍ ୦
+  const extraPrice = activeSizeData?.additionalPrice || 0;
+  
+  // ଫାଇନାଲ୍ ପ୍ରାଇସ୍ ଯାହାକି ୟୁଜର୍ କୁ ଦେଖାଯିବ ଏବଂ କାର୍ଟ କୁ ଯିବ
+  const currentSellingPrice = (product?.originalPrice || 0) + extraPrice;
+  const currentMRP = (product?.mrp || 0) + extraPrice;
+
   // ───────────── ADD TO CART LOGIC ─────────────
   const handleAddToCart = () => {
       if (!selectedSize && product.sizes?.length > 0) {
-          toast.success("Please select a size first!");
+          toast.error("Please select a size first!");
           return;
       }
 
-      // [FIXED] Context ନିୟମ ଅନୁସାରେ ସମ୍ପୂର୍ଣ୍ଣ ଡାଟା ପଠାଗଲା
-      addToCart(product, selectedSize || 'Free Size', quantity); 
+      // [NEW] କାର୍ଟ କୁ ପଠାଇବା ପୂର୍ବରୁ ଆମେ product ର price କୁ ଅପଡେଟ୍ କରି ପଠାଉଛୁ
+      // ଯାହାଦ୍ୱାରା CartContext ସେହି ବଦଳିଥିବା ଦାମ୍ (currentSellingPrice) କୁ ସେଭ୍ କରିବ
+      const productWithUpdatedPrice = {
+          ...product,
+          originalPrice: currentSellingPrice, 
+          mrp: currentMRP
+      };
+
+      addToCart(productWithUpdatedPrice, selectedSize || 'Free Size', quantity); 
       
-      // ୟୁଜର୍ କୁ ସୂଚନା ଦେବା ପାଇଁ ଏକ ଆଲର୍ଟ୍ ବା ଟୋଷ୍ଟ୍
-      toast.success("Item added to your bag successfully!"); 
+      toast.success("Item added to your bag! 🛍️", {
+          description: `${product.name} (${selectedSize?.toUpperCase()})`
+      }); 
   };
 
   if (isLoading) {
@@ -142,17 +162,18 @@ export default function ProductDetails() {
                 </div>
             )}
 
+            {/* [UPDATED] ଡାଇନାମିକ୍ ପ୍ରାଇସ୍ ଦେଖାଇବା (currentSellingPrice ବ୍ୟବହାର କରାଯାଇଛି) */}
             <div className="flex items-end gap-3 mb-6 pb-6 border-b border-gray-200">
-               <span className="text-3xl font-serif font-bold text-gray-900 leading-none">
-                 {formatPrice(product.originalPrice)}
+               <span className="text-3xl font-serif font-bold text-gray-900 leading-none transition-all duration-300">
+                 {formatPrice(currentSellingPrice)}
                </span>
-               {product.mrp > product.originalPrice && (
+               {currentMRP > currentSellingPrice && (
                  <>
-                     <span className="text-lg text-gray-400 line-through mb-0.5">
-                       {formatPrice(product.mrp)}
+                     <span className="text-lg text-gray-400 line-through mb-0.5 transition-all duration-300">
+                       {formatPrice(currentMRP)}
                      </span>
                      <span className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1 ml-2 bg-green-50 px-2 py-1 rounded-sm">
-                       Save {formatPrice(product.mrp - product.originalPrice)}
+                       Save {formatPrice(currentMRP - currentSellingPrice)}
                      </span>
                  </>
                )}
@@ -188,7 +209,11 @@ export default function ProductDetails() {
                                      : 'border-gray-300 text-gray-600 hover:border-gray-400'
                                }`}
                              >
-                               {sizeObj.sizeName.toUpperCase()}
+                               {/* ସାଇଜ୍ ନାମ ସହ ତାହାର additional price ଅଛି କି ନାହିଁ ଦେଖାଇବା (UX Improvement) */}
+                               {sizeObj.sizeName.toUpperCase()} 
+                               {sizeObj.additionalPrice > 0 && selectedSize !== sizeObj.sizeName && (
+                                   <span className="ml-1 text-[10px] text-gray-400">(+{sizeObj.additionalPrice})</span>
+                               )}
                              </button>
                          )
                      })}
@@ -196,6 +221,7 @@ export default function ProductDetails() {
                 </div>
             )}
 
+            {/* ... (ବାକି ସବୁ Button ଏବଂ Accordion କୋଡ୍ ସମାନ ରହିବ, କୌଣସି ପରିବର୍ତ୍ତନ ନାହିଁ) ... */}
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
                <div className="flex items-center justify-between border border-gray-300 rounded-md px-4 py-3 w-full sm:w-32 bg-white">
                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-500 hover:text-gray-900"><Minus size={16} /></button>
@@ -208,35 +234,16 @@ export default function ProductDetails() {
                </button>
             </div>
 
-            {/* ───────────── TRUST BADGES (ALWAYS SHOW BY DEFAULT) ───────────── */}
+            {/* ───────────── TRUST BADGES ───────────── */}
             <div className="grid grid-cols-2 gap-4 mb-10 p-5 bg-gray-50 rounded-xl border border-gray-100">
-               <div className="flex items-center gap-3">
-                 <Truck size={20} className="text-[#800020]" />
-                 <div>
-                   <p className="text-sm font-bold text-gray-900">Free Shipping</p>
-                   <p className="text-xs text-gray-500">On orders over ₹5000</p>
-                 </div>
-               </div>
-               <div className="flex items-center gap-3">
-                 <RotateCcw size={20} className="text-[#800020]" />
-                 <div>
-                   <p className="text-sm font-bold text-gray-900">Easy Returns</p>
-                   <p className="text-xs text-gray-500">7-day return policy</p>
-                 </div>
-               </div>
-               <div className="col-span-2 flex items-center gap-3 mt-2 pt-4 border-t border-gray-200">
-                 <ShieldCheck size={20} className="text-[#800020]" />
-                 <div>
-                   <p className="text-sm font-bold text-gray-900">Cash on Delivery</p>
-                   <p className="text-xs text-gray-500">Available across all major pin codes</p>
-                 </div>
-               </div>
+               <div className="flex items-center gap-3"><Truck size={20} className="text-[#800020]" /><div><p className="text-sm font-bold text-gray-900">Free Shipping</p><p className="text-xs text-gray-500">On orders over ₹5000</p></div></div>
+               <div className="flex items-center gap-3"><RotateCcw size={20} className="text-[#800020]" /><div><p className="text-sm font-bold text-gray-900">Easy Returns</p><p className="text-xs text-gray-500">7-day return policy</p></div></div>
+               <div className="col-span-2 flex items-center gap-3 mt-2 pt-4 border-t border-gray-200"><ShieldCheck size={20} className="text-[#800020]" /><div><p className="text-sm font-bold text-gray-900">Cash on Delivery</p><p className="text-xs text-gray-500">Available across all major pin codes</p></div></div>
             </div>
 
             {/* ───────────── ACCORDIONS ───────────── */}
             <div className="border-t border-gray-200">
                
-               {/* Product Details (Conditional: API ରୁ ଥିଲେ ଆସିବ) */}
                {product.productDetails && (Object.keys(product.productDetails).length > 0) && (
                    <div className="border-b border-gray-200">
                      <button onClick={() => setActiveAccordion(activeAccordion === 'details' ? null : 'details')} className="w-full py-5 flex justify-between items-center text-left">
@@ -245,21 +252,14 @@ export default function ProductDetails() {
                      </button>
                      <div className={`overflow-hidden transition-all duration-300 ${activeAccordion === 'details' ? 'max-h-96 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
                         <ul className="space-y-3">
-                          {product.productDetails.fabric && (
-                              <li className="flex flex-col sm:flex-row text-sm"><span className="font-bold text-gray-900 sm:w-1/3">Fabric:</span><span className="text-gray-600 sm:w-2/3">{product.productDetails.fabric}</span></li>
-                          )}
-                          {product.productDetails.work && (
-                              <li className="flex flex-col sm:flex-row text-sm"><span className="font-bold text-gray-900 sm:w-1/3">Work:</span><span className="text-gray-600 sm:w-2/3">{product.productDetails.work}</span></li>
-                          )}
-                          {product.productDetails.inclusions && (
-                              <li className="flex flex-col sm:flex-row text-sm"><span className="font-bold text-gray-900 sm:w-1/3">Inclusions:</span><span className="text-gray-600 sm:w-2/3">{product.productDetails.inclusions}</span></li>
-                          )}
+                          {product.productDetails.fabric && (<li className="flex flex-col sm:flex-row text-sm"><span className="font-bold text-gray-900 sm:w-1/3">Fabric:</span><span className="text-gray-600 sm:w-2/3">{product.productDetails.fabric}</span></li>)}
+                          {product.productDetails.work && (<li className="flex flex-col sm:flex-row text-sm"><span className="font-bold text-gray-900 sm:w-1/3">Work:</span><span className="text-gray-600 sm:w-2/3">{product.productDetails.work}</span></li>)}
+                          {product.productDetails.inclusions && (<li className="flex flex-col sm:flex-row text-sm"><span className="font-bold text-gray-900 sm:w-1/3">Inclusions:</span><span className="text-gray-600 sm:w-2/3">{product.productDetails.inclusions}</span></li>)}
                         </ul>
                      </div>
                    </div>
                )}
 
-               {/* Shipping & Delivery (Default: ସବୁବେଳେ ଦେଖାଇବ) */}
                <div className="border-b border-gray-200">
                  <button onClick={() => setActiveAccordion(activeAccordion === 'shipping' ? null : 'shipping')} className="w-full py-5 flex justify-between items-center text-left">
                    <span className="text-sm font-bold uppercase tracking-widest text-gray-900">Shipping & Delivery</span>
@@ -267,7 +267,6 @@ export default function ProductDetails() {
                  </button>
                  <div className={`overflow-hidden transition-all duration-300 ${activeAccordion === 'shipping' ? 'max-h-96 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
                     <p className="text-sm text-gray-600 leading-relaxed">
-                      {/* ଯଦି API ରୁ ଆସେ ତେବେ ତାହା ଦେଖାଇବ, ନହେଲେ ଡିଫଲ୍ଟ ଟେକ୍ସଟ୍ */}
                       {product.shippingInfo ? product.shippingInfo : "Standard orders are dispatched within 2-3 business days. Custom-fit orders require an additional 5-7 days for tailoring. You will receive a tracking link via email once your order is shipped."}
                     </p>
                  </div>

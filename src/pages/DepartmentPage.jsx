@@ -5,21 +5,28 @@ import { getAllProducts } from '../services/apiService';
 import ProductCard from '../components/Card/ProductCard';
 
 export default function DepartmentPage() {
-  // ୧. URL ରୁ ପାରାମିଟର୍ ଆଣିବା (ଦୁଇଟିରୁ ଯେକୌଣସି ଗୋଟିଏ ମିଳିବ)
-  const { departmentId, collectionId } = useParams(); 
+  // ୧. URL ରୁ ପାରାମିଟର୍ ଆଣିବା
+  const { departmentId, collectionId, productType } = useParams(); 
   
-  // ୨. ଆମେ ଜାଣିବାକୁ ଚେଷ୍ଟା କରିବା ଯେ ଏହା Collection ପେଜ୍ ନା Department ପେଜ୍
-  const isCollection = Boolean(collectionId);
-  
-  // ଯେଉଁଟା ବି ମିଳିଲା, ତାକୁ rawCategory ରେ ରଖିବା (ଉଦାହରଣ: 'festive-wears' ବା 'women')
-  const rawCategory = collectionId || departmentId;
+  // ୨. ଡାଇନାମିକ୍ ଭାବରେ ଚେକ୍ କରିବା ଯେ ଏହା କେଉଁ ପେଜ୍ ଅଟେ (Smart Logic)
+  let rawCategory = '';
+  let filterKey = ''; // ବ୍ୟାକେଣ୍ଡ୍ API କୁ କେଉଁ ନାମରେ ଡାଟା ଯିବ ତାହା ଏଠାରେ ସେଭ୍ ହେବ
+
+  if (collectionId) {
+      rawCategory = collectionId;
+      filterKey = 'collectionType'; // ବ୍ୟାକେଣ୍ଡ୍ ର collectionType ଫିଲ୍ଡ ପାଇଁ
+  } else if (productType) {
+      rawCategory = productType;
+      filterKey = 'productType';    // ବ୍ୟାକେଣ୍ଡ୍ ର productType ଫିଲ୍ଡ ପାଇଁ (ଯେପରିକି 'saree', 'lehenga')
+  } else if (departmentId) {
+      rawCategory = departmentId;
+      filterKey = 'department';     // ବ୍ୟାକେଣ୍ଡ୍ ର department ଫିଲ୍ଡ ପାଇଁ ('women', 'men')
+  }
 
   // ୩. ବ୍ୟାକେଣ୍ଡ୍ ପାଇଁ ଫର୍ମାଟିଂ (Hyphen '-' କୁ Underscore '_' ରେ ବଦଳାଇବା)
-  // ଉଦାହରଣ: "festive-wears" ପାଲଟିଯିବ "festive_wears"
   const apiFilterValue = rawCategory ? rawCategory.replace(/-/g, '_') : '';
 
   // ୪. ଫ୍ରଣ୍ଟଏଣ୍ଡ୍ (UI) ରେ ଦେଖାଇବା ପାଇଁ ଫର୍ମାଟିଂ 
-  // ଉଦାହରଣ: "festive-wears" ପାଲଟିଯିବ "Festive Wears"
   const displayName = rawCategory 
       ? rawCategory.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') 
       : '';
@@ -28,7 +35,6 @@ export default function DepartmentPage() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Pagination State (API ରୁ ଆସୁଥିବା ଡାଟା ପାଇଁ)
   const [pagination, setPagination] = useState({
     totalProducts: 0,
     totalPages: 1,
@@ -36,9 +42,8 @@ export default function DepartmentPage() {
     limit: 12
   });
 
-  // Sorting & Filtering State
-  const [sortBy, setSortBy] = useState('newest'); // ଡିଫଲ୍ଟ ନୂଆ ପ୍ରଡକ୍ଟ ଆସିବ
-  const [curatedFilter, setCuratedFilter] = useState(''); // trending କିମ୍ବା best_sellers ପାଇଁ
+  const [sortBy, setSortBy] = useState('newest'); 
+  const [curatedFilter, setCuratedFilter] = useState(''); 
 
 // ───────────── FETCH API ─────────────
   useEffect(() => {
@@ -50,11 +55,10 @@ export default function DepartmentPage() {
             sort: sortBy 
         };
 
-        // ୫. ସ୍ମାର୍ଟ୍ ଚେକ୍: API କୁ କଣ ପଠାଇବା?
-        if (isCollection) {
-            params.collectionType = apiFilterValue; // ଯଦି collection ଲିଙ୍କ୍ ରୁ ଆସିଛି
-        } else {
-            params.department = apiFilterValue;     // ଯଦି department ଲିଙ୍କ୍ ରୁ ଆସିଛି
+        // ୫. ସ୍ମାର୍ଟ୍ ଚେକ୍: ଏବେ ଆମକୁ ଜଣାଅଛି ଯେ API କୁ କଣ ପଠାଇବାକୁ ହେବ
+        // ଯଦି filterKey ହେଉଛି 'productType' ଏବଂ value ହେଉଛି 'saree', ଏହା ଆପେ ଆପେ { productType: 'saree' } ହୋଇଯିବ
+        if (filterKey && apiFilterValue) {
+            params[filterKey] = apiFilterValue;
         }
 
         if (curatedFilter) {
@@ -79,7 +83,8 @@ export default function DepartmentPage() {
     fetchDepartmentProducts();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-  }, [rawCategory, isCollection, apiFilterValue, pagination.currentPage, sortBy, curatedFilter]);
+  // Dependency Array ରେ 'filterKey' କୁ ଯୋଡିବାକୁ ଭୁଲିବେ ନାହିଁ
+  }, [rawCategory, filterKey, apiFilterValue, pagination.currentPage, sortBy, curatedFilter]);
 
   // Page ବଦଳିଲେ currentPage ରିସେଟ୍ କରନ୍ତୁ
   useEffect(() => {

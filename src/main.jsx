@@ -50,6 +50,7 @@ const router = createBrowserRouter(
       {/* Main Categories */}
       <Route path="/department/:departmentId" element={<DepartmentPage />} />
       <Route path="/collections/:collectionId" element={<DepartmentPage />} />
+      <Route path="/type/:productType" element={<DepartmentPage />} />
 
       <Route path="/search" element={<SearchPage />} />
 

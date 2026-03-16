@@ -31,14 +31,14 @@ const departments = [
     id: 'bridal',
     title: "Bridal Couture",
     image: "https://img.freepik.com/free-photo/beautiful-indian-bride-traditional-sari_23-2149731174.jpg?uid=R169025813&ga=GA1.1.744688816.1759506239&semt=ais_hybrid&w=740&q=80",
-    link: "/department/bridal",
+    link: "/type/bridal",
     subtitle: "For your auspicious day"
   },
   {
     id: 'jewellery',
     title: "Temple Jewellery",
     image: "https://img.freepik.com/free-photo/luxury-gold-jewelry-macro-shot_1150-5471.jpg?uid=R169025813&ga=GA1.1.744688816.1759506239&semt=ais_hybrid&w=740&q=80",
-    link: "/department/jewellery",
+    link: "/type/jewellery",
     subtitle: "Divine craftsmanship"
   }
 ];
