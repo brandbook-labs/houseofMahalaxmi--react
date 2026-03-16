@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Edit, Trash2, Search, X, Loader2, Image as ImageIcon, UploadCloud, Check } from 'lucide-react';
-import { toast } from 'sonner'; // ସବୁବେଳେ Sonner ବ୍ୟବହାର ହେବ
+import { toast } from 'sonner'; 
 import { getAllProducts, createProduct, updateProduct, deleteProduct } from '../services/apiService';
 
 export default function AdminProducts() {
@@ -14,7 +14,7 @@ export default function AdminProducts() {
 
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [existingImages, setExistingImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]); // ପୁରୁଣା ଫଟୋ ପାଇଁ
 
   const fileInputRef = useRef(null);
 
@@ -25,14 +25,15 @@ export default function AdminProducts() {
     description: '',
     department: 'women',
     productType: 'saree',
-    collectionType: [], // Array ରହିବ
-    curatedCollection: [], // Array ରହିବ
-    sizes: [{ sizeName: 'free_size', stock: 10, additionalPrice: 0 }],
+    sizeType: 'clothing', 
+    collectionType: [], 
+    curatedCollection: [], 
+    // ଡିଫଲ୍ଟ UI ରେ ସୁନ୍ଦର ଦେଖାଇବା ପାଇଁ "Free Size" ରଖାଗଲା
+    sizes: [{ sizeName: 'Free Size', stock: 10, additionalPrice: 0 }],
     productDetails: { fabric: '', work: '', inclusions: '' }
   };
   const [formData, setFormData] = useState(initialFormState);
 
-  // ───────────── OPTIONS (ବେଟର୍ UI ପାଇଁ ଡାଟା) ─────────────
   const collectionOptions = [
     { value: 'festive_wears', label: 'Festive Wears' },
     { value: 'wedding_collections', label: 'Wedding Collections' },
@@ -73,6 +74,15 @@ export default function AdminProducts() {
 
   const openEditModal = (product) => {
     setEditingId(product._id);
+    
+    // [SMART UX] ବ୍ୟାକେଣ୍ଡ୍ ରୁ "free_size" ଆସିଲେ ତାକୁ UI ପାଇଁ "Free Size" ରେ ପରିଣତ କରିବା
+    const formattedSizesForUI = product.sizes?.length > 0 
+      ? product.sizes.map(s => ({
+          ...s,
+          sizeName: s.sizeName.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())
+        }))
+      : [{ sizeName: 'Free Size', stock: 10, additionalPrice: 0 }];
+
     setFormData({
       name: product.name || '',
       mrp: product.mrp || '',
@@ -80,14 +90,16 @@ export default function AdminProducts() {
       description: product.description || '',
       department: product.department || 'women',
       productType: product.productType || 'saree',
+      sizeType: product.sizeType || 'clothing', 
       collectionType: product.collectionType || [],
       curatedCollection: product.curatedCollection || [],
-      sizes: product.sizes?.length > 0 ? product.sizes : [{ sizeName: 'free_size', stock: 10, additionalPrice: 0 }],
+      sizes: formattedSizesForUI, // ଫର୍ମାଟ୍ ହୋଇଥିବା ସାଇଜ୍
       productDetails: product.productDetails || { fabric: '', work: '', inclusions: '' }
     });
 
     setSelectedFiles([]);
     setImagePreviews([]);
+    // ପୁରୁଣା ଇମେଜ୍ ଗୁଡିକୁ ଷ୍ଟେଟ୍ ରେ ରଖିବା
     setExistingImages(product.productImages || []);
     setIsModalOpen(true);
   };
@@ -100,14 +112,11 @@ export default function AdminProducts() {
     setFormData({ ...formData, [name]: value });
   };
 
-  // [NEW] Premium Chip/Pill Multi-Select Logic
   const toggleMultiSelect = (field, value) => {
     const currentArray = formData[field];
     if (currentArray.includes(value)) {
-      // ଯଦି ଆଗରୁ ଅଛି, ତେବେ ତାକୁ ହଟାଇଦିଅନ୍ତୁ (Deselect)
       setFormData({ ...formData, [field]: currentArray.filter(item => item !== value) });
     } else {
-      // ନୂଆ ଥିଲେ ଯୋଡିଦିଅନ୍ତୁ (Select)
       setFormData({ ...formData, [field]: [...currentArray, value] });
     }
   };
@@ -120,7 +129,6 @@ export default function AdminProducts() {
     });
   };
 
-  // ───────────── SIZE ARRAY HANDLERS ─────────────
   const handleSizeChange = (index, e) => {
     const { name, value } = e.target;
     const newSizes = [...formData.sizes];
@@ -128,7 +136,7 @@ export default function AdminProducts() {
     setFormData({ ...formData, sizes: newSizes });
   };
 
-  const addSizeRow = () => setFormData({ ...formData, sizes: [...formData.sizes, { sizeName: 's', stock: 0, additionalPrice: 0 }] });
+  const addSizeRow = () => setFormData({ ...formData, sizes: [...formData.sizes, { sizeName: '', stock: 0, additionalPrice: 0 }] });
   const removeSizeRow = (index) => setFormData({ ...formData, sizes: formData.sizes.filter((_, i) => i !== index) });
 
   // ───────────── FILE UPLOAD HANDLERS ─────────────
@@ -146,8 +154,11 @@ export default function AdminProducts() {
     const newPreviews = [...imagePreviews]; newPreviews.splice(index, 1); setImagePreviews(newPreviews);
   };
 
+  // [CORE LOGIC 1] "X" ମାରିଲେ ପୁରୁଣା ଇମେଜ୍ ଆରେ ରୁ ହଟିଯିବ
   const removeExistingImage = (index) => {
-    const newExisting = [...existingImages]; newExisting.splice(index, 1); setExistingImages(newExisting);
+    const newExisting = [...existingImages]; 
+    newExisting.splice(index, 1); 
+    setExistingImages(newExisting);
   };
 
   // ───────────── SUBMIT LOGIC ─────────────
@@ -167,14 +178,31 @@ export default function AdminProducts() {
       submitData.append('description', formData.description);
       submitData.append('department', formData.department);
       submitData.append('productType', formData.productType);
+      submitData.append('sizeType', formData.sizeType); 
 
       submitData.append('collectionType', JSON.stringify(formData.collectionType));
       submitData.append('curatedCollection', JSON.stringify(formData.curatedCollection));
-      submitData.append('sizes', JSON.stringify(formData.sizes));
       submitData.append('productDetails', JSON.stringify(formData.productDetails));
 
+      // [CORE LOGIC 2] API କୁ ପଠାଇବା ପୂର୍ବରୁ "Free Size" କୁ "free_size" ରେ ପରିଣତ କରିବା
+      const backendFormattedSizes = formData.sizes.map(sizeObj => ({
+          ...sizeObj,
+          sizeName: sizeObj.sizeName.trim().toLowerCase().replace(/[\s-]+/g, '_') // ସ୍ପେସ୍ ଏବଂ ହାଇଫେନ୍ କୁ ଅଣ୍ଡରସ୍କୋର୍ କରିଦେବ
+      }));
+      submitData.append('sizes', JSON.stringify(backendFormattedSizes));
+
+      // [CORE LOGIC 3] କେବଳ ବଳକା ଥିବା ପୁରୁଣା ଫଟୋ ଏବଂ ନୂଆ ଫଟୋ ପଠାଇବା
       selectedFiles.forEach((file) => submitData.append('productImages', file));
-      if (editingId) existingImages.forEach(imgUrl => submitData.append('productImages', imgUrl));
+      
+      if (editingId) {
+         if (existingImages.length > 0) {
+             existingImages.forEach(imgUrl => submitData.append('productImages', imgUrl));
+         } else {
+             // ଯଦି ସବୁ ପୁରୁଣା ଫଟୋ ଡିଲିଟ୍ ହୋଇଯାଇଛି, ତେବେ FormData କୁ ଏକ ଖାଲି string ପଠାଇବା
+             // ଯାହାଦ୍ୱାରା ବ୍ୟାକେଣ୍ଡ୍ ଜାଣିପାରିବ ଯେ ଆମେ ଇଚ୍ଛାକୃତ ଭାବେ ସବୁ ହଟାଇଛୁ
+             submitData.append('productImages', ''); 
+         }
+      }
 
       if (editingId) {
         await updateProduct(editingId, submitData);
@@ -282,7 +310,7 @@ export default function AdminProducts() {
         {/* ───────────── ADD / EDIT MODAL ───────────── */}
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden animate-in zoom-in-95 duration-200 my-8">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-200 my-8">
               <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50 sticky top-0 z-10">
                 <h3 className="text-xl font-serif font-bold text-gray-900">
                   {editingId ? 'Edit Product' : 'Add New Product'}
@@ -299,7 +327,7 @@ export default function AdminProducts() {
                     <label className="text-sm font-bold text-gray-700">Product Name *</label>
                     <input type="text" name="name" value={formData.name} onChange={handleInputChange} required className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-sm font-bold text-gray-700">MRP (₹) *</label>
                       <input type="number" name="mrp" value={formData.mrp} onChange={handleInputChange} required className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
@@ -317,8 +345,9 @@ export default function AdminProducts() {
 
                 {/* 2. Categories & Taxonomy */}
                 <div className="space-y-4">
-                  <h4 className="font-bold text-[#800020] border-b pb-2">Categories</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <h4 className="font-bold text-[#800020] border-b pb-2">Categories & Product Type</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-1">
                       <label className="text-sm font-bold text-gray-700">Department</label>
                       <select name="department" value={formData.department} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg bg-white">
@@ -328,21 +357,54 @@ export default function AdminProducts() {
                         <option value="unisex">Unisex</option>
                       </select>
                     </div>
+                    
                     <div className="space-y-1">
                       <label className="text-sm font-bold text-gray-700">Product Type</label>
                       <select name="productType" value={formData.productType} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg bg-white">
-                        <option value="saree">Saree</option>
-                        <option value="lehenga">Lehenga</option>
-                        <option value="suit_set">Suit Set</option>
-                        <option value="jewelry">Jewelry</option>
-                        <option value="tshirt">T-Shirt</option>
+                        <optgroup label="Indian Wear">
+                            <option value="saree">Saree</option>
+                            <option value="lehenga">Lehenga</option>
+                            <option value="suit_set">Suit Set</option>
+                            <option value="kurta">Kurta</option>
+                            <option value="dupatta">Dupatta</option>
+                        </optgroup>
+                        <optgroup label="Western Wear">
+                            <option value="tshirt">T-Shirt</option>
+                            <option value="jeans">Jeans</option>
+                            <option value="trouser">Trouser</option>
+                            <option value="shirt">Shirt</option>
+                            <option value="top">Top</option>
+                            <option value="dress">Dress</option>
+                            <option value="coat">Coat</option>
+                            <option value="jacket">Jacket</option>
+                        </optgroup>
+                        <optgroup label="Accessories">
+                            <option value="jewelry">Jewelry</option>
+                            <option value="bag">Bag</option>
+                            <option value="footwear">Footwear</option>
+                            <option value="watch">Watch</option>
+                            <option value="perfume">Perfume</option>
+                            <option value="belt">Belt</option>
+                        </optgroup>
+                        <optgroup label="Other">
+                            <option value="other">Other</option>
+                        </optgroup>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-sm font-bold text-gray-700">Size Chart Type</label>
+                      <select name="sizeType" value={formData.sizeType} onChange={handleInputChange} className="w-full p-3 border border-gray-300 rounded-lg bg-white">
+                        <option value="clothing">Clothing (S, M, L)</option>
+                        <option value="waist">Waist (28, 30, 32)</option>
+                        <option value="footwear">Footwear (UK 7, 8)</option>
+                        <option value="ring">Ring (12, 14)</option>
+                        <option value="none">None / Free Size</option>
                       </select>
                     </div>
                   </div>
 
-                  {/* [NEW] BETTER UI: Multi-Select Chips / Pills */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                    {/* Collection Type Chips */}
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700">Collection Type</label>
                       <div className="flex flex-wrap gap-2">
@@ -366,7 +428,6 @@ export default function AdminProducts() {
                       </div>
                     </div>
 
-                    {/* Curated Collection Chips */}
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700">Curated Collection</label>
                       <div className="flex flex-wrap gap-2">
@@ -395,7 +456,7 @@ export default function AdminProducts() {
                 {/* 3. Product Details */}
                 <div className="space-y-4">
                   <h4 className="font-bold text-[#800020] border-b pb-2">Product Details</h4>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-1">
                       <label className="text-sm font-bold text-gray-700">Fabric</label>
                       <input type="text" name="fabric" value={formData.productDetails.fabric} onChange={handleProductDetailsChange} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#800020]" />
@@ -418,25 +479,28 @@ export default function AdminProducts() {
                     <button type="button" onClick={addSizeRow} className="text-sm font-bold text-[#800020] hover:underline flex items-center gap-1"><Plus size={16} /> Add Size</button>
                   </div>
                   {formData.sizes.map((sizeObj, idx) => (
-                    <div key={idx} className="flex gap-4 items-end bg-gray-50 p-3 rounded-lg border border-gray-100">
-                      <div className="flex-1 space-y-1">
-                        <label className="text-xs font-bold text-gray-500">Size</label>
-                        <select name="sizeName" value={sizeObj.sizeName} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md bg-white">
-                          <option value="xs">XS</option><option value="s">S</option><option value="m">M</option>
-                          <option value="l">L</option><option value="xl">XL</option><option value="xxl">XXL</option>
-                          <option value="free_size">Free Size</option>
-                        </select>
+                    <div key={idx} className="flex flex-col sm:flex-row gap-4 items-end bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      <div className="w-full sm:flex-1 space-y-1">
+                        <label className="text-xs font-bold text-gray-500">Size (e.g. Free Size, UK 7)</label>
+                        <input 
+                          type="text" 
+                          name="sizeName" 
+                          value={sizeObj.sizeName} 
+                          onChange={(e) => handleSizeChange(idx, e)} 
+                          placeholder="e.g. Free Size, M, 28"
+                          className="w-full p-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#800020]" 
+                        />
                       </div>
-                      <div className="flex-1 space-y-1">
+                      <div className="w-full sm:flex-1 space-y-1">
                         <label className="text-xs font-bold text-gray-500">Stock</label>
-                        <input type="number" name="stock" value={sizeObj.stock} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md" min="0" />
+                        <input type="number" name="stock" value={sizeObj.stock} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#800020]" min="0" />
                       </div>
-                      <div className="flex-1 space-y-1">
+                      <div className="w-full sm:flex-1 space-y-1">
                         <label className="text-xs font-bold text-gray-500">+ Price (Optional)</label>
-                        <input type="number" name="additionalPrice" value={sizeObj.additionalPrice} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md" />
+                        <input type="number" name="additionalPrice" value={sizeObj.additionalPrice} onChange={(e) => handleSizeChange(idx, e)} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-[#800020]" />
                       </div>
                       {formData.sizes.length > 1 && (
-                        <button type="button" onClick={() => removeSizeRow(idx)} className="p-2 mb-0.5 text-red-500 hover:bg-red-50 rounded-md"><Trash2 size={18} /></button>
+                        <button type="button" onClick={() => removeSizeRow(idx)} className="p-2 mb-0.5 text-red-500 hover:bg-red-50 rounded-md shrink-0"><Trash2 size={18} /></button>
                       )}
                     </div>
                   ))}
