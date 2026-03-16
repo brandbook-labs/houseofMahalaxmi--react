@@ -58,7 +58,7 @@ export default function CartPage() {
                 return (
                   <div key={`${item.id}-${item.selectedSize}`} className="group flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white border border-gray-100 shadow-sm p-4 rounded-xl hover:shadow-md transition-shadow">
                     
-                    <Link to={`/products/${item.slug || item.id}`} className="shrink-0 w-24 sm:w-32 aspect-[3/4] overflow-hidden rounded-lg bg-gray-50 block">
+                    <Link to={`/products/${item.slug || item.id}`} className="shrink-0 w-full sm:w-32 aspect-[3/4] overflow-hidden rounded-lg bg-gray-50 block">
                         <img src={itemImage} alt={item.title} className="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
                     </Link>
                     
