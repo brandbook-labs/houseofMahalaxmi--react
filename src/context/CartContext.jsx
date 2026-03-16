@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  // LocalStorage ରୁ ପୁରୁଣା କାର୍ଟ ଡାଟା ଆଣିବା (ଯାହାଦ୍ୱାରା ପେଜ୍ ରିଫ୍ରେସ୍ କଲେ ଡାଟା ଯିବ ନାହିଁ)
+  // LocalStorage ରୁ ପୁରୁଣା କାର୍ଟ ଡାଟା ଆଣିବା
   const [cartItems, setCartItems] = useState(() => {
       const savedCart = localStorage.getItem('myCart');
       return savedCart ? JSON.parse(savedCart) : [];
@@ -17,29 +17,39 @@ export const CartProvider = ({ children }) => {
   // ମୋଟ ଆଇଟମ୍ ସଂଖ୍ୟା ଗଣିବା (Header ପାଇଁ)
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  // ୧. କାର୍ଟରେ ନୂଆ ପ୍ରଡକ୍ଟ ଯୋଡିବା (Product Details ପେଜ୍ ରୁ କଲ୍ ହେବ)
+  // ୧. କାର୍ଟରେ ନୂଆ ପ୍ରଡକ୍ଟ ଯୋଡିବା
   const addToCart = (product, size, quantity = 1) => {
     setCartItems((prevItems) => {
-      // ସମାନ ପ୍ରଡକ୍ଟ ଏବଂ ସମାନ ସାଇଜ୍ ଥିଲେ କେବଳ quantity ବଢାଇବା
       const existingItemIndex = prevItems.findIndex(
         (item) => item.id === product._id && item.selectedSize === size
       );
 
       if (existingItemIndex > -1) {
+        // [FIX] Shallow Copy ବଦଳରେ Deep Object Copy କରନ୍ତୁ (Strict Mode +2 Bug Fixed)
         const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex].quantity += quantity;
+        const existingItem = updatedItems[existingItemIndex];
+        
+        updatedItems[existingItemIndex] = {
+            ...existingItem,
+            quantity: existingItem.quantity + quantity
+        };
         return updatedItems;
       }
 
       // ନୂଆ ପ୍ରଡକ୍ଟ ହୋଇଥିଲେ Array ରେ ଯୋଡିବା
       return [...prevItems, {
-        id: product._id, // ବ୍ୟାକେଣ୍ଡ୍ ର ID
+        id: product._id, 
+        slug: product.slug || product._id, // [NEW] Cart Page ରେ ଲିଙ୍କ୍ ପାଇଁ 
         title: product.name,
         category: product.department,
         type: product.productType,
         price: product.originalPrice,
-        gstRate: 12, // ଆପଣ ଏହାକୁ ବ୍ୟାକେଣ୍ଡ୍ ରୁ ଆଣିପାରିବେ ବା ଫିକ୍ସ କରିପାରିବେ
-        image: product.productImages?.[0] || 'https://via.placeholder.com/150',
+        mrp: product.mrp, // [NEW] Discount ଦେଖାଇବା ପାଇଁ
+        gstRate: 12, 
+        // [NEW] ଇମେଜ୍ ଲିଙ୍କ୍ କୁ ସଠିକ୍ ଭାବେ ସେଭ୍ କରିବା
+        image: (product.productImages && product.productImages.length > 0) 
+                ? product.productImages[0] 
+                : 'https://images.unsplash.com/photo-1583391733958-d25e0b46410f?q=80&w=600&auto=format&fit=crop',
         selectedSize: size,
         quantity: quantity
       }];

@@ -13,8 +13,17 @@ function Layout() {
         <Header />
         <Outlet />
         <Footer />
-        <Toaster />
-      </CartProvider>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: '#FDF2F8', // Light Pink
+              color: '#800020',      // Mahalaxmi Maroon
+              border: '1px solid #FBCFE8',
+            },
+            className: 'font-sans font-bold', // ଆପଣ ଚାହିଁଲେ ଫଣ୍ଟ୍ ମଧ୍ୟ ଦେଇପାରିବେ
+          }}
+        />      </CartProvider>
     </>
   );
 }

@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Star, Truck, ShieldCheck, Minus, Plus, ChevronDown, ChevronUp, Ruler, RotateCcw } from 'lucide-react';
 import { getProductById } from '../services/apiService'; 
 import { useCart } from '../context/CartContext'; 
+import { toast } from 'sonner'; // [NEW] ଟୋଷ୍ଟ୍ ଇମ୍ପୋର୍ଟ କରନ୍ତୁ
+
 
 export default function ProductDetails() {
   const { slug } = useParams();   
@@ -48,7 +50,7 @@ export default function ProductDetails() {
   // ───────────── ADD TO CART LOGIC ─────────────
   const handleAddToCart = () => {
       if (!selectedSize && product.sizes?.length > 0) {
-          alert("Please select a size first!");
+          toast.success("Please select a size first!");
           return;
       }
 
@@ -56,7 +58,7 @@ export default function ProductDetails() {
       addToCart(product, selectedSize || 'Free Size', quantity); 
       
       // ୟୁଜର୍ କୁ ସୂଚନା ଦେବା ପାଇଁ ଏକ ଆଲର୍ଟ୍ ବା ଟୋଷ୍ଟ୍
-      alert("Item added to your bag successfully!"); 
+      toast.success("Item added to your bag successfully!"); 
   };
 
   if (isLoading) {
