@@ -1,25 +1,24 @@
 import React, { useMemo } from "react";
-import { Trash2, Minus, Plus, ArrowRight, ShieldCheck, ShoppingBag } from "lucide-react";
+import { Trash2, Minus, Plus, ArrowRight, ShieldCheck, ShoppingBag, CheckCircle2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
-import { toast } from 'sonner'; // [NEW] ଟୋଷ୍ଟ୍ ଇମ୍ପୋର୍ଟ
+import { toast } from 'sonner'; 
 
 export default function CartPage() {
   const navigate = useNavigate();
   const { cartItems, updateQuantity, removeFromCart } = useCart();
 
+  // [UPDATED] ଭାରତରେ Price ରେ ପୂର୍ବରୁ GST ଥାଏ, ତେଣୁ ଅଲଗା Tax ହିସାବ ଦରକାର ନାହିଁ
   const totals = useMemo(() => {
     return cartItems.reduce((acc, item) => {
         const itemTotal = item.price * item.quantity;
-        const itemTax = itemTotal * ((item.gstRate || 0) / 100);
         return {
-            subtotal: acc.subtotal + itemTotal,
-            tax: acc.tax + itemTax
+            subtotal: acc.subtotal + itemTotal
         };
-    }, { subtotal: 0, tax: 0 });
+    }, { subtotal: 0 });
   }, [cartItems]);
 
-  const grandTotal = totals.subtotal + totals.tax;
+  const grandTotal = totals.subtotal;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(price);
@@ -37,7 +36,7 @@ export default function CartPage() {
       navigate("/checkout", { 
           state: { 
               items: cartItems,
-              totals: { subtotal: totals.subtotal, tax: totals.tax, grandTotal: grandTotal }
+              totals: { subtotal: totals.subtotal, tax: 0, grandTotal: grandTotal }
           } 
       });
   };
@@ -52,8 +51,6 @@ export default function CartPage() {
             {/* === LEFT: CART ITEMS LIST === */}
             <div className="lg:col-span-8 flex flex-col gap-6">
               {cartItems.map((item) => {
-                // [NEW] ଫଟୋ ଆଣିବାର ଲଜିକ୍ (cartItems ରେ ଯେମିତି ସେଭ୍ ହୋଇଥିବ ସେହି ଅନୁସାରେ)
-                // ପ୍ରଡକ୍ଟ ର productImages Array କିମ୍ବା ସିଧା image ପ୍ରପର୍ଟି ଥାଇପାରେ
                 const itemImage = (item.productImages && item.productImages.length > 0) 
                                     ? item.productImages[0] 
                                     : item.image || item.img || 'https://images.unsplash.com/photo-1583391733958-d25e0b46410f?q=80&w=600&auto=format&fit=crop';
@@ -61,7 +58,6 @@ export default function CartPage() {
                 return (
                   <div key={`${item.id}-${item.selectedSize}`} className="group flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white border border-gray-100 shadow-sm p-4 rounded-xl hover:shadow-md transition-shadow">
                     
-                    {/* [NEW] Image Section Active କରାଗଲା */}
                     <Link to={`/products/${item.slug || item.id}`} className="shrink-0 w-24 sm:w-32 aspect-[3/4] overflow-hidden rounded-lg bg-gray-50 block">
                         <img src={itemImage} alt={item.title} className="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
                     </Link>
@@ -132,23 +128,26 @@ export default function CartPage() {
                     <span className="font-medium text-gray-900">{formatPrice(totals.subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600">
-                    <span>Estimated GST</span>
-                    <span className="font-medium text-gray-900">{formatPrice(totals.tax)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-600">
                     <span>Shipping</span>
                     <span className="font-medium text-green-600">Free</span>
+                  </div>
+
+                  {/* [NEW] Enhanced GST & Tax Note - Trust Badge UI */}
+                  <div className="bg-green-50 rounded-lg p-3 mt-4 border border-green-100 flex items-start gap-2.5">
+                    <CheckCircle2 size={18} className="text-green-600 shrink-0 mt-0.5" />
+                    <p className="text-xs text-gray-700 leading-relaxed">
+                      <span className="font-bold text-gray-900">No Hidden Charges:</span> GST and all applicable duties are already included in the subtotal price.
+                    </p>
                   </div>
                 </div>
 
                 <div className="mb-6">
                     <div className="flex justify-between items-end mb-1">
-                        <span className="text-base font-bold text-gray-900">Total</span>
+                        <span className="text-base font-bold text-gray-900">Total Amount</span>
                         <h2 className="text-3xl font-serif font-bold text-[#800020] tracking-tight leading-none">
                             {formatPrice(grandTotal)}
                         </h2>
                     </div>
-                    <p className="text-right text-xs text-gray-500">Inclusive of all taxes</p>
                 </div>
 
                 <button
