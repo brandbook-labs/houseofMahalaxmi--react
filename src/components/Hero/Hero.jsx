@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
@@ -10,34 +10,20 @@ const MahalaxmiHero = () => {
   const diyasRef = useRef([]);
 
   useGSAP(() => {
-    // 1. Interactive Mouse Parallax
-    const handleMouseMove = (e) => {
-      const { clientX, clientY } = e;
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      
-      const moveX = (clientX - centerX) * 0.02;
-      const moveY = (clientY - centerY) * 0.02;
-
-      gsap.to('.parallax-bg', { x: moveX, y: moveY, duration: 1, ease: 'power2.out' });
-      gsap.to('.parallax-content', { x: -moveX, y: -moveY, duration: 1, ease: 'power2.out' });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    // 2. Initial Content Reveal Animation
+    // 1. Initial Content Reveal Animation
     const tl = gsap.timeline();
     tl.from('.hero-element', {
-      y: 50,
+      y: 40,
       opacity: 0,
       duration: 1,
       stagger: 0.15,
       ease: 'power3.out',
-      delay: 0.2
+      delay: 0.1
     });
 
-    // 3. Falling Flowers (Lotus Petals) Animation
+    // 2. Falling Flowers (Lotus Petals) Animation
     petalsRef.current.forEach((petal) => {
+      if (!petal) return;
       gsap.set(petal, {
         x: `random(0, ${window.innerWidth})`,
         y: -50,
@@ -57,39 +43,48 @@ const MahalaxmiHero = () => {
       });
     });
 
-    // 4. Blinking/Pulsing Diyas
+    // 3. Realistic Blinking/Flickering Diyas
     diyasRef.current.forEach((diya) => {
+      if (!diya) return;
       const flame = diya.querySelector('.flame-glow');
+      
+      // Fast, randomized flicker to mimic real fire
       gsap.to(flame, {
-        opacity: 0.4,
-        scale: 1.3,
-        duration: 'random(0.8, 1.5)',
+        opacity: "random(0.4, 1)",
+        scale: "random(0.9, 1.4)",
+        duration: "random(0.1, 0.3)", // Much faster duration for a flicker
         yoyo: true,
         repeat: -1,
-        ease: 'sine.inOut'
+        ease: 'power1.inOut'
       });
     });
 
-    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, { scope: containerRef });
 
   // Generate arrays for our decorative elements
-  const petals = Array.from({ length: 25 });
+  const petals = Array.from({ length: 30 }); // Slightly increased petals
+  
+  // Added more diyas and adjusted their positions to spread across the bottom
   const diyas = [
-    { left: '10%', bottom: '15%' },
-    { right: '10%', bottom: '15%' },
-    { left: '25%', bottom: '5%' },
-    { right: '25%', bottom: '5%' },
+    { left: '4%', bottom: '15%' },
+    { right: '4%', bottom: '15%' },
+    { left: '16%', bottom: '8%' },
+    { right: '16%', bottom: '8%' },
+    { left: '28%', bottom: '3%' },
+    { right: '28%', bottom: '3%' },
+    { left: '42%', bottom: '1%' },
+    { right: '42%', bottom: '1%' },
   ];
 
   return (
     <section 
       ref={containerRef}
-      className="relative h-screen min-h-[700px] w-full overflow-hidden font-sans flex items-center justify-center bg-[#2A0008]" 
+      // Changed to min-h-screen with vertical padding so content never gets cut off
+      className="relative min-h-screen w-full overflow-hidden font-sans flex items-center justify-center bg-[#2A0008] py-16" 
     >
-      {/* --- BACKGROUND IMAGE WITH PARALLAX --- */}
+      {/* --- BACKGROUND IMAGE --- */}
       <div 
-        className="parallax-bg absolute inset-[-5%] w-[110%] h-[110%] bg-cover bg-center z-0"
+        className="absolute inset-0 w-full h-full bg-cover bg-center z-0"
         style={{ backgroundImage: "url('https://img.freepik.com/premium-photo/hindu-goddess-durga-generated-by-ai_674037-445.jpg?uid=R169025813&ga=GA1.1.744688816.1759506239&semt=ais_hybrid&w=740&q=80')" }}
       />
 
@@ -110,8 +105,6 @@ const MahalaxmiHero = () => {
             className="absolute top-0 left-0 text-[#FFB6C1] drop-shadow-md text-xl"
             style={{ textShadow: '0px 0px 5px rgba(255, 182, 193, 0.5)' }}
           >
-            {/* Using a simple Unicode character for petals to save SVG bloat, 
-                you can replace this with an actual SVG path if preferred */}
             🌺
           </div>
         ))}
@@ -136,7 +129,7 @@ const MahalaxmiHero = () => {
       ))}
 
       {/* --- MAIN CONTENT --- */}
-      <div className="parallax-content relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center text-center mt-12 md:mt-16">
+      <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center text-center mt-8">
         
         {/* Eyebrow Badge */}
         <div className="hero-element inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/30 backdrop-blur-md border border-[#D4AF37]/40 text-[#D4AF37] text-sm font-semibold mb-8 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
@@ -176,8 +169,8 @@ const MahalaxmiHero = () => {
           </Link>
         </div>
         
-        {/* Trust Indicators */}
-        <div className="hero-element mt-20 pt-8 border-t border-[#D4AF37]/30 flex flex-wrap items-center justify-center gap-12 md:gap-24 w-full max-w-3xl">
+        {/* Trust Indicators - Adjusted margin so they stay visible */}
+        <div className="hero-element mt-12 pt-8 border-t border-[#D4AF37]/30 flex flex-wrap items-center justify-center gap-12 md:gap-24 w-full max-w-3xl">
           <div className="text-center group cursor-default">
             <p className="text-4xl font-serif font-bold text-[#D4AF37] group-hover:scale-110 transition-transform drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]">10k+</p>
             <p className="text-xs text-[#E5E7EB] uppercase tracking-[0.2em] mt-2 font-medium">Happy Customers</p>
