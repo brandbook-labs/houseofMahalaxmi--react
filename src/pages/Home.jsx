@@ -23,15 +23,17 @@ function Home() {
   return (
     <>
       <MahalaxmiHero />
+
+        <div id="shop-collection">
+        <MahalaxmiCategories />
+      </div>
       
       {/* [NEW] ଏଠାରେ ଗୋଟିଏ ID ଦିଆଗଲା */}
       <div id="shop-department">
           <ShopByDepartment />
       </div>
 
-      <div id="shop-collection">
-        <MahalaxmiCategories />
-      </div>
+    
       <ProductShowcase />   
     </>
   )

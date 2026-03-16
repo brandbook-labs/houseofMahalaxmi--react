@@ -80,7 +80,7 @@ const MahalaxmiHero = () => {
     <section 
       ref={containerRef}
       // Changed to min-h-screen with vertical padding so content never gets cut off
-      className="relative min-h-screen w-full overflow-hidden font-sans flex items-center justify-center bg-[#2A0008] py-16" 
+      className="relative min-h-[70vh] w-full overflow-hidden font-sans flex items-center justify-center bg-[#2A0008] py-16" 
     >
       {/* --- BACKGROUND IMAGE --- */}
       <div 
@@ -132,13 +132,13 @@ const MahalaxmiHero = () => {
       <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center text-center mt-8">
         
         {/* Eyebrow Badge */}
-        <div className="hero-element inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/30 backdrop-blur-md border border-[#D4AF37]/40 text-[#D4AF37] text-sm font-semibold mb-8 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+        <div className="hero-element inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/30 backdrop-blur-md border border-[#D4AF37]/40 text-[#D4AF37] text-sm font-semibold shadow-[0_0_20px_rgba(212,175,55,0.2)]">
           <Sparkles size={16} className="animate-pulse" />
           Auspicious Festive Collection
         </div>
         
         {/* Main Heading */}
-        <h1 className="hero-element text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-bold text-white leading-tight mb-6 max-w-4xl drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
+        <h1 className="hero-element text-4xl sm:text-6xl md:text-7xl lg:text-6xl font-serif font-bold text-white mb-2 max-w-4xl">
           Timeless Elegance, <br className="hidden sm:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#FFF3CA] to-[#D4AF37] drop-shadow-lg">
             Woven for You.
@@ -146,7 +146,7 @@ const MahalaxmiHero = () => {
         </h1>
         
         {/* Subtitle */}
-        <p className="hero-element text-lg md:text-xl text-gray-200 mb-10 max-w-2xl leading-relaxed drop-shadow-md font-medium">
+        <p className="hero-element text-md text-gray-200 mb-10 max-w-2xl leading-relaxed drop-shadow-md font-medium">
           Discover House of Mahalaxmi's exclusive range of handcrafted silk sarees, bridal lehengas, and premium ethnic wear designed to invoke prosperity in every celebration.
         </p>
         
@@ -154,7 +154,7 @@ const MahalaxmiHero = () => {
         <div className="hero-element flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
           <Link 
             to="/#shop-department" 
-            className="group relative overflow-hidden flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B58500] text-black px-8 py-4 rounded-md font-bold uppercase tracking-wider transition-all duration-300 w-full sm:w-auto shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.7)] hover:scale-105"
+            className="group relative overflow-hidden flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B58500] text-black px-8 py-4 rounded-md font-bold uppercase tracking-wider transition-all duration-300 w-full sm:w-auto shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.7)] hover:scale-105 border-2 border-[#D4AF37]/60"
           >
             <div className="absolute inset-0 bg-white/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
             <ShoppingBag size={20} />
