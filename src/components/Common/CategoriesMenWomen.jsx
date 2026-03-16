@@ -5,10 +5,11 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
 const baseDepartments = [
+  // --- ORIGINAL DEPARTMENTS (URLs Unchanged) ---
   {
     id: 'women',
     title: "Women's Fashion",
-    image: "https://img.freepik.com/free-photo/portrait-young-woman-wearing-tradition-sari-garment_52683-90226.jpg?uid=R169025813&ga=GA1.1.744688816.1759506239&semt=ais_hybrid&w=740&q=80",
+    image: "https://media.samyakk.in/pub/media/catalog/product/c/r/crimson-red-zari-woven-banarasi-silk-saree-with-unstitched-blouse-sr27838.jpg",
     link: "/department/women",
     subtitle: "Elegance in every thread"
   },
@@ -25,10 +26,74 @@ const baseDepartments = [
     image: "https://img.freepik.com/free-photo/happy-cute-baby-girl-fashionable-yellow-baby-clothes-posing-studio-blue-background_114579-92593.jpg?uid=R169025813&ga=GA1.1.744688816.1759506239&semt=ais_hybrid&w=740&q=80",
     link: "/department/kids",
     subtitle: "Joyful traditional styles"
+  },
+
+  // --- NEW API PRODUCT TYPES (Mapped to /type/:productType) ---
+  // Indian Wear
+  {
+    id: 'saree',
+    title: "Exquisite Sarees",
+    image: "https://anayadesignerstudio.com/cdn/shop/files/BridalRedSareeForKarwaChauthOnlineShopping.webp?v=1721648475",
+    link: "/type/saree",
+    subtitle: "Timeless Indian Grace"
+  },
+  {
+    id: 'lehenga',
+    title: "Designer Lehengas",
+    image: "https://nitikagujral.com/cdn/shop/files/NitikaG07-07-2500543_1200x.jpg?v=1754627659",
+    link: "/type/lehenga",
+    subtitle: "Festive & Bridal"
+  },
+  {
+    id: 'kurta',
+    title: "Classic Kurtas",
+    image: "https://kapdavilla.com/images/product/sub_images/2021/10/blue-hills-love-birds-vol-3-matching-ethnic-wear-men-women-kurta-set-catalogs-3-2021-10-07_18_40_03.jpeg",
+    link: "/type/kurta",
+    subtitle: "Everyday Comfort"
+  },
+  
+  // Western Wear
+  {
+    id: 'dress',
+    title: "Western Dresses",
+    image: "https://westernera.com/cdn/shop/files/scalloped-embroidery-brown-long-dress-with-victorian-collar-dresses-for-women-350568.jpg?v=1747167973",
+    link: "/type/dress",
+    subtitle: "Chic & Modern"
+  },
+  {
+    id: 'jacket',
+    title: "Coats & Jackets",
+    image: "https://assets.ajio.com/medias/sys_master/root/20250114/KCW6/67859345663dbe1c5fd5bb32/-473Wx593H-701052498-brown-MODEL.jpg",
+    link: "/type/jacket",
+    subtitle: "Layer up in style"
+  },
+
+  // Accessories
+  {
+    id: 'Jewellery',
+    title: "Fine Jewellery",
+    image: "https://www.giva.co/cdn/shop/articles/1-min_7c32be2b-8045-4a94-a1bb-ef3f91115a07.jpg?v=1760355237",
+    link: "/type/Jewellery", // Note: Capitalized 'J' as per your API schema
+    subtitle: "The perfect finish"
+  },
+  {
+    id: 'bag',
+    title: "Premium Bags",
+    image: "https://xcdn.next.co.uk/common/items/default/default/itemimages/3_4Ratio/product/lge/W27385s.jpg?im=Resize,width=750",
+    link: "/type/bag",
+    subtitle: "Carry your world"
+  },
+  {
+    id: 'watch',
+    title: "Luxury Watches",
+    image: "https://globalboutique.com/wp-content/uploads/2023/05/featured-gold-watches-800x600.jpg",
+    link: "/type/watch",
+    subtitle: "Timeless precision"
   }
 ];
 
 // Duplicate the array to create the seamless infinite scrolling illusion
+// Since we have more items now, the loop will feel much more natural and expansive
 const departments = [...baseDepartments, ...baseDepartments];
 
 const ShopByDepartment = () => {
@@ -39,7 +104,8 @@ const ShopByDepartment = () => {
     // Create the infinite continuous scroll
     const tl = gsap.to(scrollerRef.current, {
       xPercent: -50, // Moves exactly half the width (one full set of items)
-      duration: 25,  // Adjust for faster/slower scrolling
+      // Increased duration slightly because the array is much longer now
+      duration: 40,  
       ease: 'none',
       repeat: -1,
     });
@@ -104,7 +170,7 @@ const ShopByDepartment = () => {
                   <p className="text-[#D4AF37] text-sm font-semibold uppercase tracking-widest mb-2 opacity-0 transition-opacity duration-500 delay-100 group-hover:opacity-100">
                     {dept.subtitle}
                   </p>
-                  <h3 className="text-3xl font-bold font-serif mb-6 text-white">
+                  <h3 className="text-3xl font-bold font-serif text-white">
                     {dept.title}
                   </h3>
                   

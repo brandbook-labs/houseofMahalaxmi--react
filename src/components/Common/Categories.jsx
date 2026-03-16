@@ -12,7 +12,7 @@ const categories = [
   {
     id: 1,
     title: "Festive Wear",
-    image: "https://img.freepik.com/free-photo/indian-couple-celebrating-propose-day-by-being-romantic-with-each-other_23-2151110950.jpg?uid=R169025813&ga=GA1.1.744688816.1759506239&semt=ais_hybrid&w=740&q=80",
+    image: "https://theambiente.com/wp-content/uploads/2025/10/dwal.png",
     link: "/collections/festive-wears"
   },
   {
