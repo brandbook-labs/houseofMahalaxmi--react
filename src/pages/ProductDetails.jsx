@@ -5,9 +5,7 @@ import { getProductById } from '../services/apiService';
 import { useCart } from '../context/CartContext'; 
 
 export default function ProductDetails() {
-  const { slug } = useParams(); 
-  console.log("Slug: ", slug);
-  
+  const { slug } = useParams();   
   const { addToCart } = useCart(); 
 
   // ───────────── STATES ─────────────

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Trash2, Minus, Plus, ArrowRight, ShieldCheck, ArrowLeft, ShoppingBag } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 
 export default function CartPage() {
@@ -189,12 +189,12 @@ export default function CartPage() {
             <p className="text-gray-500 mb-8 max-w-sm text-center">
               Looks like you haven't added anything to your bag yet. Let's find you something beautiful.
             </p>
-            <button
-              onClick={() => navigate("/shop")}
+            <Link
+              to={"/"}
               className="bg-[#800020] text-white px-8 py-3.5 rounded-md font-bold uppercase text-sm hover:bg-[#600018] transition-colors shadow-md shadow-[#800020]/20"
             >
               Start Shopping
-            </button>
+            </Link>
           </div>
         )}
       </div>
