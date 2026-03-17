@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // ଆପଣଙ୍କ ବ୍ୟାକେଣ୍ଡ୍ URL (ଏହାକୁ .env ଫାଇଲ୍‌ରେ ରଖିବା ସବୁଠାରୁ ଭଲ)
 // const BASE_URL = 'http://localhost:3005/api/v1';
-const BASE_URL = 'https://api-mahalaxmi.onrender.com/api/v1';
+const BASE_URL = 'https://api.houseofmahalaxmi.shop/api/v1';
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
