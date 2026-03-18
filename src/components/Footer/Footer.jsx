@@ -84,8 +84,8 @@ export default function Footer() {
             <h4 className="font-serif text-lg font-bold text-gray-900">Support</h4>
             <a href="/contact-us" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Contact Us</a>
             <a href="/faq" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">FAQs</a>
-            <a href="/shipping" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Shipping Policy</a>
-            <a href="/returns" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Returns & Exchanges</a>
+            <a href="/faq" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Shipping Policy</a>
+            <a href="/faq" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">Returns & Exchanges</a>
          </div>
 
          {/* Contact & Socials */}
@@ -93,7 +93,7 @@ export default function Footer() {
             <h4 className="font-serif text-lg font-bold text-gray-900">Get in Touch</h4>
             
             <a href="mailto:support@houseofmahalaxmi.com" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit">
-               support@houseofmahalaxmi.com
+               support@houseofmahalaxmi.shop
             </a>
             <a href="tel:+919876543210" className="text-sm text-gray-600 hover:text-[#800020] transition-colors w-fit mb-2">
                +91 98765 43210

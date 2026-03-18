@@ -25,6 +25,7 @@ import AdminProducts from "./admin/AdminProducts";
 import AdminProtectedRoute from "./AdminProtectedRoute";
 import AdminOrders from "./admin/AdminOrders";
 import AdminLayout from "./AdminLayout";
+import FAQMahalaxmi from "./components/Contact/FAQs";
 
 // import WomensCollection from "./pages/Women/WomensCollection";
 // import MensCollection from "./pages/Men/MensCollection";
@@ -53,6 +54,8 @@ const router = createBrowserRouter(
       <Route path="/type/:productType" element={<DepartmentPage />} />
 
       <Route path="/search" element={<SearchPage />} />
+      <Route path="/contact-us" element={<ContactPage />} />
+      <Route path="/faq" element={<FAQMahalaxmi />} />
 
       {/* Admin */}
       <Route path="/admin/login" element={<AdminLogin />} />

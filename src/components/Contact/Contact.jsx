@@ -1,256 +1,181 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { 
-  ArrowUpRight, Mail, MessageSquare, MapPin, 
-  Send, CheckCircle2, User, HelpCircle, Briefcase, FileText 
+  MapPin, MessageCircle, Mail, Send, CheckCircle2 
 } from 'lucide-react';
 
-export default function ContactUX() {
-  const [formType, setFormType] = useState('agency'); // 'agency' or 'support'
-  const [focusedField, setFocusedField] = useState(null);
+export default function ContactMahalaxmi() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const formRef = useRef(null);
 
-  // Animation on Mount
+  // Smooth entry animation
   useEffect(() => {
     gsap.fromTo(".fade-up",
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out" }
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" }
     );
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // 1. Extract data
+    const formData = new FormData(e.target);
+    const name = formData.get('userName');
+    const email = formData.get('userEmail');
+    const message = formData.get('message');
+    
+    // 2. Format the message for WhatsApp
+    let waMessage = `*New Inquiry: House of Mahalaxmi* ✨\n\n`;
+    waMessage += `*Name:* ${name}\n`;
+    waMessage += `*Email:* ${email}\n\n`;
+    waMessage += `*Message:*\n${message}`;
+
+    // 3. Process the redirect
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
-    }, 1500);
+      
+      const ownerNumber = "919692664009"; 
+      const encodedMessage = encodeURIComponent(waMessage);
+      const whatsappUrl = `https://wa.me/${ownerNumber}?text=${encodedMessage}`;
+      
+      window.open(whatsappUrl, '_blank');
+      
+      if(formRef.current) formRef.current.reset();
+    }, 800);
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white pt-24 pb-20 relative">
+    <div className="min-h-screen bg-[#FAFAFA] text-slate-900 pt-24 pb-20 relative font-sans">
       
-      {/* Background Ambience */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4E821] opacity-[0.03] blur-[150px] pointer-events-none"></div>
-
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         
-        {/* === LEFT COLUMN: CONTEXT & DIRECT LINKS === */}
-        <div className="lg:col-span-5 flex flex-col gap-10">
+        {/* === LEFT COLUMN: BRAND & DETAILS === */}
+        <div className="flex flex-col gap-10">
            
-           {/* Header */}
            <div className="fade-up">
-              <span className="text-[#D4E821] font-mono text-xs uppercase tracking-widest mb-4 block">
-                 /// Comms_Channel
-              </span>
-              <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tight leading-[0.9] mb-6">
-                 Let's <br/> <span className="text-gray-700">Connect.</span>
+              <h1 className="text-4xl md:text-6xl font-serif tracking-tight text-slate-900 mb-6">
+                 House of <br/>
+                 <span className="text-amber-600 italic">Mahalaxmi</span>
               </h1>
-              <p className="text-gray-400 text-lg leading-relaxed max-w-md">
-                 Whether you're looking to revolutionize your brand's digital presence or need help with a download, our team is standing by.
+              <p className="text-slate-600 text-lg leading-relaxed max-w-md">
+                 We would love to hear from you. Reach out to us for bespoke inquiries, collections, or general questions.
               </p>
            </div>
 
-           {/* Quick Action Grid (Bento Style) */}
-           <div className="grid grid-cols-1 gap-4 fade-up">
+           {/* Direct Contacts */}
+           <div className="flex flex-col gap-6 fade-up mt-4">
               
-              {/* WhatsApp / Phone */}
-              <a 
-                href="https://wa.me/919692664009" 
-                target="_blank"
-                className="group flex items-center justify-between p-6 bg-[#0a0a0a] border border-white/10 rounded-xl hover:border-[#D4E821]/50 transition-all hover:bg-[#0f0f0f]"
-              >
-                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
-                       <MessageSquare size={20} />
-                    </div>
-                    <div>
-                       <h3 className="text-sm font-bold text-white">Chat on WhatsApp</h3>
-                       <p className="text-xs text-gray-500 font-mono">+91 96926 64009</p>
-                    </div>
-                 </div>
-                 <ArrowUpRight size={18} className="text-gray-600 group-hover:text-[#D4E821] group-hover:-translate-y-1 group-hover:translate-x-1 transition-all" />
-              </a>
-
-              {/* Email */}
-              <a 
-                href="mailto:hello@mographics.store"
-                className="group flex items-center justify-between p-6 bg-[#0a0a0a] border border-white/10 rounded-xl hover:border-[#D4E821]/50 transition-all hover:bg-[#0f0f0f]"
-              >
-                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
-                       <Mail size={20} />
-                    </div>
-                    <div>
-                       <h3 className="text-sm font-bold text-white">Email Us</h3>
-                       <p className="text-xs text-gray-500 font-mono">hello@mographics.store</p>
-                    </div>
-                 </div>
-                 <ArrowUpRight size={18} className="text-gray-600 group-hover:text-[#D4E821] group-hover:-translate-y-1 group-hover:translate-x-1 transition-all" />
-              </a>
-
-              {/* Location */}
-              <div className="flex items-start gap-4 p-6 bg-[#0a0a0a] border border-white/10 rounded-xl">
-                 <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 shrink-0">
-                    <MapPin size={20} />
+              <div className="flex items-start gap-5">
+                 <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                    <MapPin size={22} />
                  </div>
                  <div>
-                    <h3 className="text-sm font-bold text-white mb-1">Headquarters</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">
-                       Bhubaneswar, Odisha<br/>
-                       India, 751024
+                    <h3 className="text-sm font-semibold text-slate-900 mb-1">Our Store</h3>
+                    <p className="text-slate-600 leading-relaxed">
+                       Bhadrak, Odisha<br/>
+                       India, 756100
                     </p>
+                 </div>
+              </div>
+
+              <div className="flex items-start gap-5">
+                 <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                    <MessageCircle size={22} />
+                 </div>
+                 <div>
+                    <h3 className="text-sm font-semibold text-slate-900 mb-1">WhatsApp</h3>
+                    <p className="text-slate-600">+91 96926 64009</p>
+                 </div>
+              </div>
+
+              <div className="flex items-start gap-5">
+                 <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                    <Mail size={22} />
+                 </div>
+                 <div>
+                    <h3 className="text-sm font-semibold text-slate-900 mb-1">Email</h3>
+                    <p className="text-slate-600">contact@houseofmahalaxmi.shop</p>
                  </div>
               </div>
 
            </div>
         </div>
 
-        {/* === RIGHT COLUMN: THE SMART FORM === */}
-        <div className="lg:col-span-7 fade-up">
-           <div className="bg-[#0f0f0f] border border-white/10 rounded-2xl p-6 md:p-10 relative overflow-hidden">
+        {/* === RIGHT COLUMN: SIMPLE FORM === */}
+        <div className="fade-up">
+           <div className="bg-white border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-8 md:p-10 relative overflow-hidden">
               
-              {/* SUCCESS STATE OVERLAY */}
+              {/* SUCCESS OVERLAY */}
               {isSuccess && (
-                 <div className="absolute inset-0 z-20 bg-[#0f0f0f] flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-300">
-                    <div className="w-20 h-20 bg-[#D4E821] rounded-full flex items-center justify-center mb-6 text-black shadow-[0_0_30px_rgba(212,232,33,0.3)]">
-                       <CheckCircle2 size={40} />
+                 <div className="absolute inset-0 z-20 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center text-center animate-in fade-in duration-300">
+                    <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6 text-green-600">
+                       <CheckCircle2 size={32} />
                     </div>
-                    <h3 className="text-3xl font-black uppercase mb-2">Message Sent</h3>
-                    <p className="text-gray-400 max-w-xs mb-8">We have received your transmission. Our team will respond within 24 hours.</p>
+                    <h3 className="text-2xl font-serif text-slate-900 mb-2">Connecting...</h3>
+                    <p className="text-slate-500 max-w-[250px] mb-8">Redirecting you to our WhatsApp to complete your message.</p>
                     <button 
                        onClick={() => setIsSuccess(false)}
-                       className="text-sm font-bold text-[#D4E821] uppercase tracking-widest hover:text-white transition-colors"
+                       className="text-sm font-medium text-amber-600 hover:text-amber-700 transition-colors"
                     >
-                       Send Another
+                       Send another message
                     </button>
                  </div>
               )}
 
-              {/* --- 1. INTENT TOGGLE --- */}
-              <div className="flex p-1 bg-black rounded-lg border border-white/10 mb-8">
-                 <button 
-                    onClick={() => setFormType('agency')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-md text-xs font-bold uppercase tracking-wider transition-all duration-300
-                       ${formType === 'agency' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}
-                    `}
-                 >
-                    <Briefcase size={14} /> Start a Project
-                 </button>
-                 <button 
-                    onClick={() => setFormType('support')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-md text-xs font-bold uppercase tracking-wider transition-all duration-300
-                       ${formType === 'support' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}
-                    `}
-                 >
-                    <HelpCircle size={14} /> Order Support
-                 </button>
-              </div>
-
-              {/* --- 2. THE FORM --- */}
-              <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-5">
                  
-                 {/* Name & Email Row */}
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                       <label className={`text-[10px] font-mono uppercase tracking-widest transition-colors ${focusedField === 'name' ? 'text-[#D4E821]' : 'text-gray-500'}`}>
-                          Your Name
-                       </label>
-                       <div className={`flex items-center bg-black border rounded-lg px-4 transition-colors duration-300 ${focusedField === 'name' ? 'border-[#D4E821]' : 'border-white/10'}`}>
-                          <User size={16} className="text-gray-600" />
-                          <input 
-                             required
-                             type="text" 
-                             onFocus={() => setFocusedField('name')}
-                             onBlur={() => setFocusedField(null)}
-                             className="w-full bg-transparent p-4 text-sm text-white placeholder-gray-700 focus:outline-none"
-                             placeholder="John Doe"
-                          />
-                       </div>
-                    </div>
-
-                    <div className="space-y-2">
-                       <label className={`text-[10px] font-mono uppercase tracking-widest transition-colors ${focusedField === 'email' ? 'text-[#D4E821]' : 'text-gray-500'}`}>
-                          Email Address
-                       </label>
-                       <div className={`flex items-center bg-black border rounded-lg px-4 transition-colors duration-300 ${focusedField === 'email' ? 'border-[#D4E821]' : 'border-white/10'}`}>
-                          <Mail size={16} className="text-gray-600" />
-                          <input 
-                             required
-                             type="email" 
-                             onFocus={() => setFocusedField('email')}
-                             onBlur={() => setFocusedField(null)}
-                             className="w-full bg-transparent p-4 text-sm text-white placeholder-gray-700 focus:outline-none"
-                             placeholder="john@example.com"
-                          />
-                       </div>
-                    </div>
+                 <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                       Full Name
+                    </label>
+                    <input 
+                       required
+                       name="userName"
+                       type="text" 
+                       className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
+                       placeholder="e.g. Priya Sharma"
+                    />
                  </div>
 
-                 {/* Dynamic Field based on Intent */}
-                 {formType === 'support' && (
-                    <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                       <label className={`text-[10px] font-mono uppercase tracking-widest transition-colors ${focusedField === 'order' ? 'text-[#D4E821]' : 'text-gray-500'}`}>
-                          Order ID (Optional)
-                       </label>
-                       <div className={`flex items-center bg-black border rounded-lg px-4 transition-colors duration-300 ${focusedField === 'order' ? 'border-[#D4E821]' : 'border-white/10'}`}>
-                          <FileText size={16} className="text-gray-600" />
-                          <input 
-                             type="text" 
-                             onFocus={() => setFocusedField('order')}
-                             onBlur={() => setFocusedField(null)}
-                             className="w-full bg-transparent p-4 text-sm text-white placeholder-gray-700 focus:outline-none"
-                             placeholder="#ORD-12345"
-                          />
-                       </div>
-                    </div>
-                 )}
+                 <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                       Email Address
+                    </label>
+                    <input 
+                       required
+                       name="userEmail"
+                       type="email" 
+                       className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
+                       placeholder="priya@example.com"
+                    />
+                 </div>
 
-                 {formType === 'agency' && (
-                    <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                       <label className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">
-                          Service Type
-                       </label>
-                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                          {['Social Media', 'Web Dev', 'Campaigns', 'Branding', 'Print'].map((service) => (
-                             <label key={service} className="cursor-pointer">
-                                <input type="checkbox" className="peer sr-only" />
-                                <div className="text-[10px] font-bold uppercase text-center py-3 border border-white/10 rounded bg-black text-gray-500 peer-checked:bg-[#D4E821] peer-checked:text-black peer-checked:border-[#D4E821] transition-all hover:border-white/30">
-                                   {service}
-                                </div>
-                             </label>
-                          ))}
-                       </div>
-                    </div>
-                 )}
-
-                 {/* Message */}
-                 <div className="space-y-2">
-                    <label className={`text-[10px] font-mono uppercase tracking-widest transition-colors ${focusedField === 'msg' ? 'text-[#D4E821]' : 'text-gray-500'}`}>
-                       How can we help?
+                 <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                       Your Message
                     </label>
                     <textarea 
                        required
+                       name="message"
                        rows="4"
-                       onFocus={() => setFocusedField('msg')}
-                       onBlur={() => setFocusedField(null)}
-                       className={`w-full bg-black border rounded-lg p-4 text-sm text-white placeholder-gray-700 focus:outline-none transition-colors duration-300 resize-none ${focusedField === 'msg' ? 'border-[#D4E821]' : 'border-white/10'}`}
-                       placeholder={formType === 'agency' ? "Tell us about your project goals..." : "Describe the issue you are facing..."}
+                       className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none"
+                       placeholder="How can we assist you today?"
                     ></textarea>
                  </div>
 
-                 {/* Submit */}
                  <button 
                     type="submit"
                     disabled={isSubmitting}
-                    className="mt-2 bg-[#D4E821] text-black h-14 rounded-lg font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(212,232,33,0.2)] hover:shadow-[0_0_30px_rgba(212,232,33,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="mt-4 bg-slate-900 text-white h-12 rounded-lg font-medium tracking-wide hover:bg-amber-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
                  >
                     {isSubmitting ? (
-                       <span className="animate-pulse">Processing...</span>
+                       <span className="animate-pulse">Opening WhatsApp...</span>
                     ) : (
-                       <>Send Message <Send size={18} /></>
+                       <>Send Inquiry <Send size={16} /></>
                     )}
                  </button>
 
