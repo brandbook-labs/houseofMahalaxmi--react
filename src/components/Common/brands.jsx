@@ -51,36 +51,43 @@ const brands = [
 
 const PremiumBrands = () => {
   return (
-    <section className="py-20 bg-gray-50 border-t border-gray-200">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <section className="relative py-24 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
+      {/* Subtle Background Decoration */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-[#800020]/5 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative container mx-auto px-4 max-w-6xl">
         
         {/* Section Header */}
         <div className="text-center mb-16 flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#800020]/10 border border-[#800020]/20 text-[#800020] text-sm font-bold mb-4 uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#800020]/10 text-[#800020] text-sm font-bold mb-6 uppercase tracking-widest shadow-sm">
             <Award size={16} />
             Official Retailer
           </div>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
-            Premium Brands at Mahalaxmi Bastralaya
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-6 tracking-tight">
+            Curated Excellence
           </h2>
-          <p className="text-gray-600 max-w-2xl text-lg">
-            We bring you the finest collections from India's and the world's most trusted fashion houses.
+          <p className="text-gray-500 max-w-2xl text-lg md:text-xl font-light">
+            Discover the finest collections from India's and the world's most trusted fashion houses at <span className="font-semibold text-gray-900">Mahalaxmi Bastralaya</span>.
           </p>
         </div>
 
-        {/* Brands Grid Layout */}
-        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 lg:gap-16">
+        {/* Structured Grid Layout */}
+        {/* Uses a 2-col grid on mobile, and a perfect 3x3 grid on medium/large screens */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8 max-w-5xl mx-auto">
           {brands.map((brand) => (
             <div 
               key={brand.id}
-              className="w-[120px] sm:w-[150px] md:w-[180px] h-[80px] flex items-center justify-center group"
+              className="group relative flex items-center justify-center p-6 sm:p-8 bg-white rounded-2xl border border-gray-100 shadow-sm transition-all duration-500 ease-out hover:shadow-xl hover:border-[#800020]/20 hover:-translate-y-1 aspect-[3/2] overflow-hidden"
             >
+              {/* Internal subtle glow on hover */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#800020]/0 to-[#800020]/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              
               <img 
                 src={brand.logoUrl} 
                 alt={`${brand.name} logo`} 
                 title={brand.name}
-                // The CSS below makes logos gray by default, and colorful + slightly scaled up on hover
-                className="max-w-full max-h-full object-contain filter grayscale opacity-60 transition-all duration-300 ease-in-out group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 mix-blend-multiply"
+                // mix-blend-multiply is kept because it magically removes white backgrounds from JPEGs when placed on a white card
+                className="relative z-10 max-w-full max-h-full object-contain transition-transform duration-700 ease-out group-hover:scale-110 mix-blend-multiply opacity-80 group-hover:opacity-100"
               />
             </div>
           ))}
