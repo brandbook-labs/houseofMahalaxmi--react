@@ -4,6 +4,8 @@ import MahalaxmiHero from '../components/Hero/Hero';
 import ProductShowcase from '../components/Products/PopularItems';
 import MahalaxmiCategories from '../components/Common/Categories';
 import ShopByDepartment from '../components/Common/CategoriesMenWomen';
+import VideoShowcase from '../components/Common/VideoShowcase';
+import PremiumBrands from '../components/Common/brands';
 
 function Home() {
   const { hash } = useLocation();
@@ -27,14 +29,19 @@ function Home() {
         <div id="shop-collection">
         <MahalaxmiCategories />
       </div>
-      
-      {/* [NEW] ଏଠାରେ ଗୋଟିଏ ID ଦିଆଗଲା */}
-      <div id="shop-department">
+
+     
+     
+    
+       <div id="shop-department">
           <ShopByDepartment />
       </div>
-
-    
       <ProductShowcase />   
+
+
+       <PremiumBrands />
+      <VideoShowcase />   
+
     </>
   )
 }
